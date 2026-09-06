@@ -1,0 +1,28 @@
+selectivity:
+  predicate_axis: Date
+  target_bands: [0.0001, 0.001, 0.01, 0.05, 0.10, 0.50]
+  optional_full_scan: 1.0
+  definition: "matched_rows / total_rows"
+  use_measured_selectivity_for_analysis: true
+  freeze_boundaries_before_main_benchmark: true
+  band_relative_tolerance: 0.20
+  require_monotonic_measured_bands: true
+
+  # Konteks dari artikel MMDEC: periode observasi 1 Juli - 30 September 2023
+  # (92 hari), 19.014.229 baris posisi.
+  observation:
+    start: 2023-07-01
+    end: 2023-09-30
+    days: 92
+    total_rows: 19014229
+
+  # Titik awal pencarian boundary dengan asumsi arrival rate seragam.
+  # Trafik AIS nyata TIDAK seragam (artikel MMDEC, Fig. 5), jadi angka ini
+  # hanya untuk sizing; boundary final ditentukan oleh COUNT(*) aktual.
+  uniform_window_estimate:
+    0.0001: "13 menit (~1.9k baris)"
+    0.001: "2.2 jam (~19k baris)"
+    0.01: "22 jam (~190k baris)"
+    0.05: "4.6 hari (~951k baris)"
+    0.10: "9.2 hari (~1.9jt baris)"
+    0.50: "46 hari (~9.5jt baris)"

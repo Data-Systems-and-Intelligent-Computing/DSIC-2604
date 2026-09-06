@@ -1,0 +1,19 @@
+hardware:
+  cpu_model: FILL
+  cores: FILL
+  threads: FILL
+  ram_gb: FILL
+  storage_medium: FILL
+  filesystem: FILL
+software:
+  os: FILL
+  kernel: FILL
+  docker: FILL
+  java: FILL
+  trino: FILL
+  spark: FILL
+  iceberg: FILL
+  minio: FILL
+placement:
+  minio_trino_same_host: true
+  notes: FILL

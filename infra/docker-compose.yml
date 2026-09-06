@@ -1,0 +1,119 @@
+# DSIC-2604 testbed.
+#
+# Jalankan dari root repository:
+#   cp .env.example .env
+#   docker compose -f infra/docker-compose.yml --env-file .env up -d
+#
+# CATATAN G7 (resource freeze):
+# - Semua image WAJIB di-pin ke tag eksplisit. Tag di bawah adalah nilai awal;
+#   verifikasi ketersediaan tag saat E0, lalu bekukan dan salin versi persis
+#   ke data/manifests/environment_snapshot.yaml.
+# - Batas cpus/memory di bawah adalah definisi operasional
+#   "resource-constrained" dan tidak boleh diubah setelah main run dimulai.
+
+name: dsic2604
+
+services:
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["./volumes/minio:/data"]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    deploy:
+      resources:
+        limits:
+          cpus: "${MINIO_CPUS}"
+          memory: ${MINIO_MEMORY}
+
+  # Membuat bucket warehouse sekali jalan, lalu keluar.
+  minio-init:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+      mc mb --ignore-existing local/${MINIO_BUCKET} &&
+      mc ls local/${MINIO_BUCKET}
+      "
+    restart: "no"
+
+  # Katalog Iceberg bersama untuk Spark (writer) dan Trino (reader).
+  # Trino TIDAK mendukung iceberg.catalog.type=hadoop, jadi katalog
+  # filesystem bukan opsi yang sah untuk desain ini.
+  iceberg-rest:
+    image: apache/iceberg-rest-fixture:1.9.1
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    ports: ["8181:8181"]
+    environment:
+      CATALOG_WAREHOUSE: ${ICEBERG_WAREHOUSE}
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: ${MINIO_ENDPOINT}
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1g
+
+  trino:
+    image: trinodb/trino:476
+    depends_on:
+      - iceberg-rest
+    ports: ["8080:8080"]
+    volumes: ["./trino/catalog:/etc/trino/catalog:ro"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      ICEBERG_CATALOG_URI: ${ICEBERG_CATALOG_URI}
+      ICEBERG_WAREHOUSE: ${ICEBERG_WAREHOUSE}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+    healthcheck:
+      test: ["CMD", "trino", "--execute", "SELECT 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+    deploy:
+      resources:
+        limits:
+          cpus: "${TRINO_CPUS}"
+          memory: ${TRINO_MEMORY}
+
+  # Writer layout. Tidak ikut `up` default; aktifkan dengan:
+  #   docker compose -f infra/docker-compose.yml --env-file .env --profile layout up spark
+  # Alternatif yang juga sah: PySpark dari venv host (lihat infra/spark/README.md).
+  spark:
+    profiles: ["layout"]
+    image: apache/spark:3.5.6-scala2.12-java17-python3-ubuntu
+    depends_on:
+      - iceberg-rest
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+      ICEBERG_CATALOG_URI: ${ICEBERG_CATALOG_URI}
+      ICEBERG_WAREHOUSE: ${ICEBERG_WAREHOUSE}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+    volumes:
+      - "../:/workspace:rw"
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
+    deploy:
+      resources:
+        limits:
+          cpus: "${BENCH_CPUS}"
+          memory: ${BENCH_MEMORY}

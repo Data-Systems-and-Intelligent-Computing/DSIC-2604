@@ -1,0 +1,53 @@
+benchmark:
+  seed: 42
+  warmup_runs_per_condition: 2
+  measured_repetitions_per_condition: 20
+  preferred_repetitions_for_p95_claim: 30
+  run_order: block_randomized
+  concurrency: 1
+  cache_protocol: steady_state_after_consistent_warmup
+  record_failed_runs: true
+  raw_log_format: jsonl
+  raw_log_path: results/raw/runs.jsonl
+
+factors:
+  file_size_mib: [32, 64, 128, 256]     # ikut configs/layout.yaml: grid_decision
+  selectivity_bands: [0.0001, 0.001, 0.01, 0.05, 0.10, 0.50]
+  query_families: [Q1, Q2, Q3]
+
+# 4 x 6 x 3 = 72 kondisi; 72 x 20 = 1.440 measured run (+ 144 warm-up).
+grid:
+  conditions: 72
+  minimum_measured_runs: 1440
+  warmup_runs: 144
+
+# Di luar main factorial grid; dijalankan terpisah dan dianalisis terpisah.
+out_of_grid:
+  Q4_entity_robustness:
+    enabled: true
+    mmsi_sample_size: 50
+    sample_seed: 42
+    note: "25.130 MMSI unik di AIS_POS (artikel MMDEC). Sampel dibekukan sebelum run."
+  full_scan_control:
+    enabled: false
+    selectivity: 1.0
+
+primary_metrics:
+  - p50_latency_ms
+  - p95_latency_ms
+  - paired_latency_difference_ms
+  - latency_ratio_vs_128mib
+mechanism_metrics:
+  - physical_input_bytes
+  - processed_input_rows
+  - processed_input_bytes
+  - completed_splits
+  - cpu_time_ms
+  - peak_memory_bytes
+  - planning_ms
+write_guardrail_metrics:
+  - layout_build_wall_seconds
+  - write_throughput_mib_s
+  - generated_file_count
+  - rewrite_compaction_seconds
+  - storage_footprint_mib

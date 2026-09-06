@@ -1,0 +1,1 @@
+variant,target_file_size_mib,actual_file_count,median_file_size_mib,iqr_file_size_mib,min_file_size_mib,max_file_size_mib,cv_file_size,row_group_target_mib,median_row_group_mib,row_count,checksum,compression,row_order,partitioning

@@ -1,0 +1,1 @@
+query_id,query_family,target_selectivity,measured_selectivity,predicate_start,predicate_end,matched_rows,total_rows,frozen_at

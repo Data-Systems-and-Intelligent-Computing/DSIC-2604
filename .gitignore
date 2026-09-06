@@ -1,0 +1,37 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets / environment
+.env
+infra/.env
+
+# Infrastructure state
+infra/volumes/
+
+# Data (MMDEC snapshots dan layout variants tidak boleh masuk Git)
+data/raw/
+data/canonical/
+data/layouts/
+*.parquet
+*.zip
+!data/manifests/*.csv
+
+# Results: manifest & tabel ringkas boleh di-commit, raw log tidak
+results/raw/*
+!results/raw/.gitkeep
+results/processed/*
+!results/processed/.gitkeep
+results/figures/*
+!results/figures/.gitkeep
+results/tables/*
+!results/tables/.gitkeep
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

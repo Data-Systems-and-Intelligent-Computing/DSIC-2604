@@ -1,0 +1,3 @@
+SELECT COUNT(*) AS matched_rows
+FROM iceberg.dsic2604.ais_pos_128
+WHERE Date BETWEEN TIMESTAMP '{{START_TS}}' AND TIMESTAMP '{{END_TS}}';

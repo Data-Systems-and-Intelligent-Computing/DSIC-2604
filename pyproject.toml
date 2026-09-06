@@ -1,0 +1,24 @@
+[project]
+name = "dsic-2604-parquet-file-size-selectivity"
+version = "0.1.0"
+description = "Controlled study of Parquet data-file size and measured query selectivity."
+requires-python = ">=3.10"
+dependencies = [
+  "pyarrow>=17.0",
+  "pandas>=2.2",
+  "numpy>=1.26",
+  "scipy>=1.13",
+  "statsmodels>=0.14",
+  "matplotlib>=3.9",
+  "pyyaml>=6.0",
+  "requests>=2.32",
+  "psutil>=6.0",
+  "trino>=0.329"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2", "ruff>=0.5"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

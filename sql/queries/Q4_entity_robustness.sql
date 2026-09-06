@@ -1,0 +1,3 @@
+SELECT COUNT(*) AS n
+FROM {{TABLE}}
+WHERE Mmsi IN ({{MMSI_LIST}});

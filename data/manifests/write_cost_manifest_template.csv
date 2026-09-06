@@ -1,0 +1,1 @@
+variant,target_file_size_mib,layout_build_wall_seconds,write_throughput_mib_s,generated_file_count,storage_footprint_mib,rewrite_compaction_seconds,writer_version,spark_version,iceberg_version,recorded_at

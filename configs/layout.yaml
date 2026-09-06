@@ -1,0 +1,52 @@
+layout:
+  # Grid utama. HANYA berlaku bila kondisi terbesar menghasilkan >= 8 file.
+  primary_file_sizes_mib: [32, 64, 128, 256]
+  optional_file_sizes_mib: [512]
+  baseline_file_size_mib: 128
+  row_group_target_mib: 32
+
+  # Aturan kelayakan grid (diperiksa di E1, gate G3).
+  #
+  # Dataset_AIS_POS.parquet berisi 19.014.229 baris dengan 14 kolom. Ukuran
+  # Parquet+Snappy yang realistis berada di kisaran ratusan MiB hingga ~1 GiB,
+  # sehingga 256 MiB berpotensi hanya menghasilkan 3-4 file. Jumlah file
+  # sekecil itu membuat efek file-size tidak terpisahkan dari efek paralelisme.
+  #
+  # Karena itu ukuran tabel kanonik WAJIB diukur sebelum grid dibekukan.
+  min_files_for_largest_condition: 8
+  preferred_min_files_for_largest_condition: 16
+  applies_to_entire_grid: true
+
+  # Dipakai bila aturan di atas gagal pada grid utama. Rasio antar-kondisi dan
+  # rasio file-size : row-group tetap sama (4x dan 4:1), sehingga desain
+  # eksperimen tidak berubah - hanya skalanya yang menyesuaikan ukuran tabel.
+  fallback_file_sizes_mib: [8, 16, 32, 64]
+  fallback_baseline_file_size_mib: 32
+  fallback_row_group_target_mib: 8
+
+  # Keputusan grid dicatat sebelum E3 dan tidak boleh diubah setelahnya.
+  grid_decision:
+    decided_at_experiment: E1
+    canonical_table_size_mib: FILL
+    chosen_grid: FILL          # primary | fallback
+    justification: FILL
+
+  partitioning: unpartitioned
+  compression: snappy
+  row_order:
+    main: date_clustered_fixed
+    robustness: [deterministic_shuffled, original_order_if_available]
+
+  invariants:
+    same_schema: true
+    same_row_count: true
+    same_row_values: true
+    same_writer_version: true
+    same_encoding_settings: true
+    same_row_group_target: true
+    preserve_nested_id_chunk_list_type: true
+
+  realized_validation:
+    require_iqr_separation_between_adjacent_sizes: true
+    min_median_size_ratio_between_adjacent_sizes: 1.5
+    row_group_median_relative_spread_tolerance: 0.25
