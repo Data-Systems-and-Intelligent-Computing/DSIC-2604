@@ -20,11 +20,64 @@ protokol dibekukan.
 ### Minggu 1 — Freeze, Data, Infrastruktur, Layout, Pilot
 
 **H1 — Freeze protokol dan akuisisi data**
-- bekukan RQ1–RQ5, hipotesis H1–H5, dan novelty boundary;
-- unduh MMDEC dari DOI `10.5281/zenodo.17491518`, catat tanggal dan lisensi;
-- hitung sha256, isi `data/manifests/source_manifest.csv`.
-- Deliverable: source manifest terisi.
+- bekukan RQ1–RQ5, hipotesis H1–H5, dan novelty boundary;✅
+  
+  **🎯 Hasil & Catatan:**
+  - **Dokumen Referensi:** Tersimpan dan terkunci di `configs/protocol_freeze.yaml`.
+  - **Novelty Boundary:** *Controlled file-size × measured-selectivity interaction study with fixed row-group granularity, predefined crossover criterion, resource constraints, and mechanism attribution*.
+  - **Prinsip Utama:** Menolak klaim satu ukuran file "optimal universal". Hasil akhir ditargetkan berupa *conditional decision map*, di mana ketiadaan *crossover* tetap diakui sebagai temuan ilmiah yang sah.
+  - **Cakupan RQ & Hipotesis:**
+    - **RQ1 & H1 (Interaksi):** Interaksi data-file size vs query selectivity terhadap latency.
+    - **RQ2 & H3 (Crossover):** Kestabilan pergeseran ranking antar-ukuran file pada selectivity tertentu.
+    - **RQ3 & H4 (Mekanisme):** Atribusi trade-off skipping bytes vs split/scheduling overhead Trino.
+    - **RQ4 & H5 (Biaya Write):** Trade-off penulisan dan footprint (file count, layout build time).
+    - **RQ5 (Robustness):** Kontrol pengacakan urutan baris (*deterministic shuffled*).
 
+
+- unduh MMDEC dari DOI `10.5281/zenodo.17491518`, catat tanggal dan lisensi;
+
+  **📦 Hasil & Catatan:**
+  - **Dataset Utama:** `Dataset_AIS_POS.parquet` (tersimpan di `D:\Tugas Akhir\Dataset\Dataset_AIS_POS.parquet`).
+  - **Sumber Repositori:** Zenodo DOI [`10.5281/zenodo.17491518`](https://doi.org/10.5281/zenodo.17491518).
+  - **Artikel Sumber:** *Data in Brief* DOI [`10.1016/j.dib.2026.112629`](https://doi.org/10.1016/j.dib.2026.112629) (Averty et al., 2026).
+  - **Lisensi Data:** Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
+  - **Tanggal Akuisisi:** 08 September 2026.
+
+
+- hitung sha256, isi `data/manifests/source_manifest.csv`.
+
+  **🔐 Hasil & Catatan:**
+  - **Ukuran File Fisik:** `450,935,970` bytes (~430.05 MiB).
+  - **Algoritma Hash:** SHA-256 (dihitung streaming per blok 64 KB).
+  - **Nilai Checksum:** `88998c43f7e152710c3b157cf47c8119cdef05554d2a6d32e980ce36101b5785`.
+  - **Status Pencatatan:** Seluruh atribut fisik dan kriptografis berhasil dimasukkan ke file `data/manifests/source_manifest.csv`.
+
+
+- Deliverable: source manifest terisi.
+  - Deliverable: source manifest terisi. ✅
+
+  **📄 Hasil & Bukti Uji:**
+  - **Isi Berkas `data/manifests/source_manifest.csv`:**
+    ```csv
+    dataset_name,role,source_doi,paper_doi,license,download_date,file_path,file_size_bytes,sha256_checksum,expected_row_count,expected_unique_mmsi,verification_status
+    Dataset_AIS_POS.parquet,primary_benchmark,10.5281/zenodo.17491518,10.1016/j.dib.2026.112629,CC-BY-NC-4.0,2026-09-08,Dataset/Dataset_AIS_POS.parquet,450935970,88998c43f7e152710c3b157cf47c8119cdef05554d2a6d32e980ce36101b5785,19014229,25130,VERIFIED_H1
+    ```
+  - **Bukti Eksekusi Test (`pytest -v tests/test_source_contract.py`):**
+    ```text
+    tests/test_source_contract.py::test_protocol_freeze_exists PASSED        [ 50%]
+    tests/test_source_contract.py::test_source_manifest_integrity PASSED     [100%]
+    ============================== 2 passed in 0.86s ==============================
+    ```
+
+
+ 
+
+
+
+
+
+
+  
 **H2 — Validasi sumber terhadap artikel**
 - jalankan `src/validate_source.py`: row count 19.014.229, MMSI unik 25.130,
   14 kolom Tabel 2, tipe `Date` temporal;
