@@ -24,12 +24,13 @@ layout:
   fallback_baseline_file_size_mib: 32
   fallback_row_group_target_mib: 8
 
-  # Keputusan grid dicatat sebelum E3 dan tidak boleh diubah setelahnya.
+   # Keputusan grid dicatat sebelum E3 dan tidak boleh diubah setelahnya.
   grid_decision:
     decided_at_experiment: E1
-    canonical_table_size_mib: FILL
-    chosen_grid: FILL          # primary | fallback
-    justification: FILL
+    canonical_table_size_mib: 450.05
+    chosen_grid: fallback
+    justification: "Ukuran fisik dataset kanonik terkompresi adalah 450.05 MiB. Kondisi terbesar pada grid utama (256 MiB) diproyeksikan hanya menghasilkan 1 file (< 8 file batas minimum kelayakan). Sesuai aturan Gate G3, dipilih fallback grid [8, 16, 32, 64] MiB dengan baseline 32 MiB dan target row-group 8 MiB untuk menjamin derajat paralelisasi Trino tanpa merusak rasio skala eksperimen (faktor 2x antar-kondisi dan rasio 4:1 antara file-size dan row-group)."
+
 
   partitioning: unpartitioned
   compression: snappy

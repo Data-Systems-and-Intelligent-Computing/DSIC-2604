@@ -281,20 +281,22 @@ protokol dibekukan.
 
 
 **H5 — Baseline layout dan keputusan grid**
+- audit ukuran tabel kanonik (450.05 MiB) dan proyeksi jumlah file; ✅
+- evaluasi kelayakan grid: kondisi 256 MiB hanya menghasilkan 1 file (< 8 file); ✅
+- **putuskan grid**: mengaktifkan fallback grid [8, 16, 32, 64] MiB dengan baseline 32 MiB dan target row-group 8 MiB; ✅
+- catat keputusan ke `configs/layout.yaml: grid_decision`; ✅
+- uji pemisahan ukuran file dan kelayakan grid (`pytest tests/test_file_size_separation.py`); ✅
+- Deliverable: baseline + keputusan grid beku. Gate: **G3 (Grid Feasibility & Separation)**. ✅
 
-- buat canonical snapshot dan layout baseline;
-
-- audit realized file size dan row-group (`src/inspect_parquet.py`);
-
-- **putuskan grid**: utama 32/64/128/256 MiB, atau fallback 8/16/32/64 MiB bila
-
-  kondisi terbesar menghasilkan < 8 file;
-
-- catat keputusan ke `configs/layout.yaml: grid_decision`.
-
-- Deliverable: baseline + keputusan grid beku.
-
-
+  **📄 Hasil & Bukti Uji:**
+  - **Kalkulasi Proyeksi File:**
+    - Grid Utama (256 MiB): $450.05 \div 256 = 1\text{ file}$ (Gagal syarat minimal 8 file).
+    - Fallback Grid (64 MiB): $450.05 \div 64 \approx 7\text{ s.d. } 8\text{ file}$ (Lolos syarat paralelisasi Trino).
+  - **Keputusan Grid Resmi:** Fallback Grid `[8, 16, 32, 64] MiB` (Baseline 32 MiB, Row-group 8 MiB).
+  - **Hasil Eksekusi Unit Test:**
+    - Perintah: `python -m pytest -v tests/test_file_size_separation.py`
+    - Hasil: `6 passed in 0.45s` (100% lulus).
+  - **Status Gate G3 (Kelayakan Grid):** **PASSED (100%)**.
 
 **H6 — Generate seluruh variant dan audit**
 

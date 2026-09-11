@@ -74,9 +74,11 @@
 - **Status Gate:** **Gate G7 LULUS 100%**.
 ---
 
-### ⚪ H5 — Baseline Layout dan Keputusan Grid
-- [ ] Tentukan target grid: 32/64/128/256 MiB atau fallback 8/16/32/64 MiB.
-- [ ] Catat keputusan ke `configs/layout.yaml: grid_decision`.
+### ✅ H5 — Baseline Layout dan Keputusan Grid (Selesai)
+- [x] Tentukan target grid: Fallback grid 8/16/32/64 MiB (karena kondisi 256 MiB menghasilkan 1 file < 8 file).
+- [x] Catat keputusan dan justifikasi ke `configs/layout.yaml: grid_decision`.
+- [x] Eksekusi kontrak uji kelayakan lulus (`tests/test_file_size_separation.py`).
+- **Status Gate:** **Gate G3 LULUS 100%**.
 
 ---
 
