@@ -1,0 +1,2 @@
+dataset_name,role,source_doi,paper_doi,license,download_date,file_path,file_size_bytes,sha256_checksum,expected_row_count,expected_unique_mmsi,verification_status
+Dataset_AIS_POS.parquet,primary_benchmark,10.5281/zenodo.17491518,10.1016/j.dib.2026.112629,CC-BY-NC-4.0,2026-09-08,Dataset/Dataset_AIS_POS.parquet,450935970,88998c43f7e152710c3b157cf47c8119cdef05554d2a6d32e980ce36101b5785,19014229,25130,VERIFIED_H1

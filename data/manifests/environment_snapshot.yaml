@@ -1,0 +1,32 @@
+snapshot_date: "2026-09-11"
+gate: "G7"
+status: "FROZEN_FOR_BENCHMARK"
+
+host_environment:
+  os: "Windows"
+  container_runtime: "Docker Desktop / Docker Compose v2"
+
+pinned_images:
+  minio: "minio/minio:RELEASE.2025-04-22T22-12-26Z"
+  minio_mc: "minio/mc:RELEASE.2025-04-16T18-13-26Z"
+  iceberg_rest: "apache/iceberg-rest-fixture:1.9.1"
+  trino: "trinodb/trino:476"
+  spark: "apache/spark:3.5.6-scala2.12-java17-python3-ubuntu"
+
+enforced_resource_caps:
+  trino:
+    cpus: "6"
+    memory: "10g"
+  minio:
+    cpus: "2"
+    memory: "4g"
+  spark_layout_writer:
+    cpus: "8"
+    memory: "16g"
+
+lakehouse_topology:
+  storage_protocol: "S3 (MinIO)"
+  catalog_type: "Iceberg REST Catalog"
+  query_engine: "Trino (Coordinator/Worker colocated)"
+  target_bucket: "dsic2604"
+  warehouse_path: "s3://dsic2604/warehouse"

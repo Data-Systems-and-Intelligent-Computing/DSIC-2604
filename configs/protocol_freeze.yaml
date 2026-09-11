@@ -1,0 +1,59 @@
+# ==============================================================================
+# DSIC-2604: PROTOCOL FREEZE SPECIFICATION (H1 Deliverable)
+# Dibekukan pada Hari 1 (H1). Tidak boleh diubah post-hoc setelah benchmark.
+# ==============================================================================
+
+study:
+  code: "DSIC-2604"
+  title_id: "Interaksi Ukuran Data-File Parquet dan Selektivitas Query pada Lakehouse Bersumber Daya Terbatas: Evaluasi Terkontrol Menggunakan MMDEC"
+  title_en: "Parquet Data-File Size–Query Selectivity Interactions in a Resource-Constrained Lakehouse: A Controlled Study on MMDEC"
+  field: "Data Systems"
+  dataset_benchmark: "MMDEC (Multimodal Maritime Dataset on the English Channel)"
+  dataset_doi: "10.5281/zenodo.17491518"
+  paper_doi: "10.1016/j.dib.2026.112629"
+  date_frozen: "2026-09-08"
+
+novelty_boundary:
+  definition: "Controlled file-size × measured-selectivity interaction study with fixed row-group granularity, predefined crossover criterion, resource constraints, and mechanism attribution."
+  negative_claims:
+    - "Bukan mencari satu ukuran file Parquet yang 'optimal universal'."
+    - "Bukan benchmarking data maritim sebagai domain application."
+    - "Bukan software shootout antara MinIO vs Iceberg vs Trino."
+  output_form: "Conditional decision map / crossover region"
+  no_crossover_rule: "Tidak ditemukannya crossover adalah temuan ilmiah yang sah, bukan kegagalan eksperimen."
+
+research_questions:
+  RQ1: "Bagaimana ukuran data-file Parquet berinteraksi dengan query selectivity dalam memengaruhi analytical query latency pada lakehouse bersumber daya terbatas ketika row-group size, row order, partitioning, compression, query engine, dan hardware dibuat tetap?"
+  RQ2: "Apakah relative ranking antarukuran data-file berubah pada selectivity tertentu sehingga membentuk crossover region yang stabil antar-pengulangan dan query family?"
+  RQ3: "Mekanisme sistem apa yang menjelaskan perubahan tersebut, dilihat dari physical input bytes, processed rows/bytes, split activity, CPU utilization, dan peak memory?"
+  RQ4: "Berapa biaya layout generation/write dan compaction/rewrite yang ditimbulkan tiap file-size regime, dan apakah rekomendasi read-side berubah ketika write/maintenance cost ikut dipertimbangkan?"
+  RQ5: "Apakah pola file-size–selectivity tetap terlihat pada row-order control atau tabel MMDEC kedua?"
+
+hypotheses:
+  H1:
+    name: "Interaction"
+    statement: "Efek file size terhadap latency bergantung pada measured query selectivity."
+    falsification: "Perbedaan relatif konstan, CI terlalu lebar, atau tidak ada pola interaction yang dapat dibedakan dari noise floor."
+  H2:
+    name: "Low-Selectivity Benefit"
+    statement: "Pada selectivity rendah, satu atau lebih file-size lebih kecil dapat mengurangi latency atau physical input dibanding 128/256 MiB."
+  H3:
+    name: "Crossover"
+    statement: "Relative winner berubah dari ukuran lebih kecil ke lebih besar ketika selectivity meningkat."
+    rule: "Crossover hanya boleh diklaim setelah criterion yang dibekukan terpenuhi."
+  H4:
+    name: "Mechanism"
+    statement: "Perubahan latency dapat dijelaskan oleh trade-off data skipping/physical-input reduction vs file-open/split/scheduling overhead."
+  H5:
+    name: "Write Trade-off"
+    statement: "File yang lebih kecil diperkirakan meningkatkan generated file count, layout-build time, dan compaction/rewrite cost."
+
+frozen_controls:
+  table_primary: "Dataset_AIS_POS.parquet"
+  row_order_main: "Date-clustered / fixed order"
+  row_group_target_mib: 32  # fallback 8 MiB jika tabel < 2 GiB / kondisi terbesar < 8 file
+  partitioning: "unpartitioned"
+  compression: "snappy"
+  query_engine: "Trino"
+  concurrency: 1  # single query stream
+  baseline_file_size_mib: 128  # fallback 32 MiB

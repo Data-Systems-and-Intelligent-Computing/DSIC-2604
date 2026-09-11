@@ -35,3 +35,6 @@ results/tables/*
 .DS_Store
 .idea/
 .vscode/
+
+# Raw Dataset MMDEC
+Dataset/

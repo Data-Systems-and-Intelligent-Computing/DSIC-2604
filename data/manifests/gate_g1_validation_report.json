@@ -1,0 +1,18 @@
+{
+  "gate": "G1",
+  "dataset_path": "Dataset\\Dataset_AIS_POS.parquet",
+  "status": "PASSED",
+  "checks": {
+    "checksum_sha256": "PASSED",
+    "parquet_metadata": "PASSED",
+    "semantic_contract": "PASSED"
+  },
+  "semantic_metrics": {
+    "total_rows": 19014229,
+    "total_mmsi": 25130,
+    "min_date": "2023-06-30 23:58:37",
+    "max_date": "2023-09-30 23:58:13",
+    "distinct_days": 93,
+    "is_passed": true
+  }
+}

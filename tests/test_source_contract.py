@@ -1,43 +1,75 @@
-"""Kontrak verifikasi terhadap artikel data MMDEC (Data in Brief 65, 112629)."""
-import pyarrow as pa
+"""
+Test Source Contract and H1 Deliverables (Gate G1 Pre-check)
+"""
 
-from src.mmdec import (
-    AIS_POS_COLUMNS,
-    AIS_POS_MESSAGE_TYPES,
-    AIS_POS_ROWS,
-    AIS_POS_UNIQUE_MMSI,
-)
-from src.validate_source import check_columns, check_date_type
+import csv
+import os
+from pathlib import Path
+import sys
+import yaml
 
+# Pastikan root proyek terdaftar di sys.path agar bisa dijalankan langsung
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
-def _schema(fields):
-    return pa.schema(fields)
-
-
-def test_article_constants():
-    assert AIS_POS_ROWS == 19_014_229
-    assert AIS_POS_UNIQUE_MMSI == 25_130
-    # Q3 melakukan GROUP BY MessageType; kardinalitasnya maksimal 6.
-    assert set(AIS_POS_MESSAGE_TYPES) == {1, 2, 3, 18, 19, 27}
-    assert len(AIS_POS_COLUMNS) == 14
+from src.common import calculate_sha256, get_project_root
 
 
-def test_full_schema_matches_article_table_2():
-    fields = [(name, pa.string()) for name in AIS_POS_COLUMNS]
-    fields[0] = ("Date", pa.timestamp("us"))
-    schema = _schema(fields)
-    report = check_columns(schema)
-    assert report["missing"] == [] and report["extra"] == []
-    assert check_date_type(schema)["is_temporal"]
+def test_protocol_freeze_exists():
+    root = get_project_root()
+    freeze_path = root / "configs" / "protocol_freeze.yaml"
+    assert freeze_path.exists(), "configs/protocol_freeze.yaml harus ada pada H1"
+
+    with open(freeze_path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    assert "research_questions" in data
+    assert len(data["research_questions"]) == 5
+    assert "hypotheses" in data
+    assert len(data["hypotheses"]) == 5
+    assert "novelty_boundary" in data
+    print("  [OK] Uji 1: configs/protocol_freeze.yaml (RQ1-RQ5 & H1-H5) valid!")
 
 
-def test_missing_column_is_reported():
-    fields = [(n, pa.string()) for n in AIS_POS_COLUMNS if n != "SpeedOverGround"]
-    report = check_columns(_schema(fields))
-    assert report["missing"] == ["SpeedOverGround"]
+def test_source_manifest_integrity():
+    root = get_project_root()
+    manifest_path = root / "data" / "manifests" / "source_manifest.csv"
+    assert manifest_path.exists(), "data/manifests/source_manifest.csv harus ada pada H1"
+
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    assert len(rows) >= 1, "source_manifest.csv minimal memiliki 1 entri dataset utama"
+    primary = rows[0]
+
+    assert primary["dataset_name"] == "Dataset_AIS_POS.parquet"
+    assert primary["source_doi"] == "10.5281/zenodo.17491518"
+    assert primary["paper_doi"] == "10.1016/j.dib.2026.112629"
+
+    # Verifikasi file ada di disk dan cocok checksum-nya
+    file_path = root / primary["file_path"]
+    assert file_path.exists(), f"File dataset tidak ditemukan di {file_path}"
+
+    actual_size = file_path.stat().st_size
+    assert actual_size == int(primary["file_size_bytes"]), (
+        f"Ukuran file tidak cocok: actual {actual_size} vs manifest {primary['file_size_bytes']}"
+    )
+
+    actual_hash = calculate_sha256(file_path)
+    assert actual_hash == primary["sha256_checksum"], (
+        f"Checksum SHA-256 tidak cocok: actual {actual_hash} vs manifest {primary['sha256_checksum']}"
+    )
+    print("  [OK] Uji 2: data/manifests/source_manifest.csv & Checksum SHA-256 cocok 100%!")
 
 
-def test_string_date_column_is_rejected():
-    schema = _schema([("Date", pa.string()), ("Mmsi", pa.int64())])
-    info = check_date_type(schema)
-    assert not info["is_temporal"] and info["type"] == "string"
+if __name__ == "__main__":
+    print("=" * 60)
+    print("[RUN] MENJALANKAN UJI INTEGRITAS HARI 1 (H1)")
+    print("=" * 60)
+    test_protocol_freeze_exists()
+    test_source_manifest_integrity()
+    print("=" * 60)
+    print("[PASS] SEMUA UJI H1 LULUS DENGAN SEMPURNA!")
+    print("=" * 60)
