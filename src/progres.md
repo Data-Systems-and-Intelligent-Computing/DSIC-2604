@@ -66,11 +66,12 @@
 
 ---
 
-### ⚪ H4 — Freeze Resource dan Ukur Noise Floor
-- [ ] Bekukan CPU/RAM limit di `.env` dan `docker-compose.yml`.
-- [ ] Jalankan baseline query ringan 30x untuk menghitung Coeff of Variation (CV) latency.
-- [ ] Dokumentasikan noise floor (Gate **G7**).
-
+### ✅ H4 — Freeze Resource dan Ukur Noise Floor (Selesai)
+- [x] Bekukan CPU/RAM limit di `.env` dan `docker-compose.yml`.
+- [x] Jalankan baseline query ringan 30x untuk menghitung Coeff of Variation (CV) latency.
+- [x] Hasil terukur: Mean = 288.99 ms, CV = 7.83% (sangat stabil).
+- [x] Deliverable laporan tersimpan di `data/manifests/gate_g7_noise_floor_report.json`.
+- **Status Gate:** **Gate G7 LULUS 100%**.
 ---
 
 ### ⚪ H5 — Baseline Layout dan Keputusan Grid

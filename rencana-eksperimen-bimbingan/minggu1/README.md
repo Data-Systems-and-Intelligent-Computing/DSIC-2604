@@ -258,18 +258,25 @@ protokol dibekukan.
 
 
 **H4 — Freeze resource dan ukur noise floor**
+- bekukan cap CPU/memory di `.env` + `deploy.resources.limits`; ✅
+- jalankan satu query ringan 30x untuk mengukur noise floor (CV latency); ✅
+- tentukan benchmark window (kondisi idle tanpa beban komputasi eksternal) dan bekukan; ✅
+- Deliverable: noise floor terdokumentasi. Gate: **G7 (Part 2 - Stability / Noise Floor)**. ✅
+- Aturan: perbedaan latency yang lebih kecil dari 7.83% tidak boleh ditafsirkan sebagai efek layout di Minggu 3. ✅
 
-- bekukan cap CPU/memory di `.env` + `deploy.resources.limits`;
+  **📄 Hasil & Bukti Uji:**
+  - **Skrip Eksekutor:** `scripts/measure_noise_floor.py` (30 iterasi query `SELECT 1` + 1x warm-up).
+  - **Metrik Statistik Noise Floor:**
+    - Rata-rata Latency (Mean): `288.99 ms`
+    - Standar Deviasi: `22.62 ms`
+    - Median (P50): `280.02 ms`
+    - Persentil 95 (P95): `333.30 ms`
+    - Rentang (Min - Max): `267.83 ms` s.d. `335.61 ms`
+    - **Coefficient of Variation (CV):** **`7.83%`** (Ambang batas maksimum yang diizinkan: 25.0%).
+  - **Berkas Bukti Deliverable:**
+    - `data/manifests/gate_g7_noise_floor_report.json`
+  - **Status Gate G7 Keseluruhan:** **PASSED (100%)** — Lingkungan beku dan variabilitas terkontrol.
 
-- jalankan satu query ringan 30x untuk mengukur noise floor (CV latency);
-
-- tentukan benchmark window (jam berjalannya run) dan bekukan.
-
-- Deliverable: noise floor terdokumentasi. Gate: **G7**.
-
-- Aturan: perbedaan latency yang lebih kecil dari noise floor tidak boleh
-
-  ditafsirkan di Minggu 3.
 
 
 
