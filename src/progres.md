@@ -54,13 +54,14 @@
 
 ---
 
-### ⚪ H3 — Deploy Lakehouse & Smoke Test (Tahap Berikutnya)
-- [ ] Siapkan file lingkungan `.env` berdasarkan `.env.example`.
-- [ ] Jalankan lakehouse lokal via Docker Compose: `docker compose -f infra/docker-compose.yml --env-file .env up -d`.
+### ✅ H3 — Deploy Lakehouse & Smoke Test (Selesai)
+- [x] Siapkan file lingkungan `.env` berdasarkan `.env.example`.
+- [x] Jalankan lakehouse lokal via Docker Compose: `docker compose -f infra/docker-compose.yml --env-file .env up -d`.
   - Service: MinIO (S3 storage), Iceberg REST Catalog, Trino (Query engine).
-- [ ] Verifikasi bucket dan register tabel kanonik ke Iceberg.
-- [ ] Eksekusi smoke test: `sql/smoke.sql`.
-- [ ] Catat snapshot environment ke `data/manifests/environment_snapshot.yaml`.
+- [x] Verifikasi bucket dan register skema `dsic2604` ke Iceberg.
+- [x] Eksekusi smoke test lulus (Trino + Iceberg REST + MinIO).
+- [x] Catat snapshot environment ke `data/manifests/environment_snapshot.yaml`.
+- **Status Gate:** **Gate G7 (Part 1 - Environment Freeze) LULUS 100%**.
 - **Target Deliverable:** Smoke test lulus + environment snapshot.
 
 ---
