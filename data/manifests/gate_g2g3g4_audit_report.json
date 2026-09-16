@@ -1,0 +1,97 @@
+{
+  "audit_date": "2026-09-16T07:21:44.795941+00:00",
+  "gates": {
+    "G2": {
+      "status": "PASSED",
+      "variants_found": 4,
+      "variants_expected": 4
+    },
+    "G3": {
+      "status": "PASSED",
+      "separation_results": [
+        {
+          "pair": "8vs16",
+          "smaller_median_mib": 7.928268909454346,
+          "larger_median_mib": 14.697114944458008,
+          "median_ratio": 1.853760904468302,
+          "iqr_overlap": false,
+          "range_overlap": true,
+          "separated": true
+        },
+        {
+          "pair": "16vs32",
+          "smaller_median_mib": 14.697114944458008,
+          "larger_median_mib": 28.278847694396973,
+          "median_ratio": 1.92410876564998,
+          "iqr_overlap": false,
+          "range_overlap": false,
+          "separated": true
+        },
+        {
+          "pair": "32vs64",
+          "smaller_median_mib": 28.278847694396973,
+          "larger_median_mib": 51.45464563369751,
+          "median_ratio": 1.8195453432104474,
+          "iqr_overlap": false,
+          "range_overlap": false,
+          "separated": true
+        }
+      ],
+      "feasibility": {
+        "file_count": 8,
+        "minimum_required": 8,
+        "preferred": 16,
+        "feasible": true,
+        "preferred_met": false
+      }
+    },
+    "G4": {
+      "status": "PASSED",
+      "row_group_control": {
+        "row_group_mib_median_by_variant": {
+          "8": 8.556187629699707,
+          "16": 8.77554702758789,
+          "32": 10.323787212371826,
+          "64": 10.50323486328125
+        },
+        "relative_spread": 0.22756013751066814,
+        "controlled": true
+      }
+    }
+  },
+  "variant_summaries": {
+    "08mib": {
+      "file_count": 66,
+      "row_count": 19014229,
+      "file_size_mib_median": 7.928268909454346,
+      "file_size_mib_iqr": 1.077122688293457,
+      "row_group_mib_median": 8.556187629699707,
+      "total_size_mib": 423.29883193969727
+    },
+    "16mib": {
+      "file_count": 31,
+      "row_count": 19014229,
+      "file_size_mib_median": 14.697114944458008,
+      "file_size_mib_iqr": 1.829392433166504,
+      "row_group_mib_median": 8.77554702758789,
+      "total_size_mib": 421.1160535812378
+    },
+    "32mib": {
+      "file_count": 15,
+      "row_count": 19014229,
+      "file_size_mib_median": 28.278847694396973,
+      "file_size_mib_iqr": 1.328648567199707,
+      "row_group_mib_median": 10.323787212371826,
+      "total_size_mib": 418.81121349334717
+    },
+    "64mib": {
+      "file_count": 8,
+      "row_count": 19014229,
+      "file_size_mib_median": 51.45464563369751,
+      "file_size_mib_iqr": 2.334892988204956,
+      "row_group_mib_median": 10.50323486328125,
+      "total_size_mib": 413.3283519744873
+    }
+  },
+  "overall": "PASSED"
+}

@@ -19,7 +19,7 @@
 
 | Minggu | Fokus | Eksperimen | Gate Utama | Status |
 |---|---|---|---|---|
-| **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | 🟡 In Progress (H1 ✅, H2 ⏳) |
+| **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | 🟡 In Progress (H1–H6 ✅, H7 🟡) |
 | **Minggu 2 (H8–H14)** | Main Factorial Benchmark | E3 | Kelengkapan run & telemetry | ⚪ Belum Dimulai |
 | **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | ⚪ Belum Dimulai |
 | **Minggu 4 (H22–H28)** | Reproduksi, Ekstensi, Manuskrip | E5, E6 | Quality gate skripsi/artikel | ⚪ Belum Dimulai |
@@ -82,15 +82,39 @@
 
 ---
 
-### ⚪ H6 — Generate Varian Parquet dan Audit
-- [ ] Tulis 4 varian ukuran file dari snapshot kanonik yang sama (row-group konstan).
-- [ ] Audit separasi IQR dan kesetaraan semantik (Gate **G2, G3, G4**).
-- [ ] Catat write cost ke `data/manifests/write_cost_manifest.csv`.
+### ✅ H6 — Generate Varian Parquet dan Audit (Selesai)
+- [x] Tulis 4 varian ukuran file dari snapshot kanonik yang sama (`ais_pos_08`, `ais_pos_16`, `ais_pos_32`, `ais_pos_64`):
+  - Row-group konstan: target 8 MiB (Snappy compression, unpartitioned, date_clustered_fixed).
+  - Row count konsisten 100%: masing-masing tepat 19.014.229 baris.
+- [x] Audit separasi IQR dan kontrol ukuran row-group:
+  - **Gate G2 (Layout Completeness):** LULUS (4/4 varian terbuat).
+  - **Gate G3 (IQR Separation & Feasibility):** LULUS (rasio median berdekatan: 1.85x, 1.92x, 1.82x > 1.5x; tidak ada tumpang-tindih IQR; kondisi terbesar 8 file ≥ 8).
+  - **Gate G4 (Row-group Control):** LULUS (spread relatif = 0.2276 ≤ toleransi 0.25).
+- [x] Uji kesetaraan semantik kueri (Q1, Q2, Q3) di Trino:
+  - Q1 (predicate scan count): 1.576.090 baris (100% identik di 4 varian).
+  - Q2 (selective aggregation: avg & max SOG): 100% identik.
+  - Q3 (selective group-by MessageType): 100% identik.
+  - Seluruh 6 unit test `tests/test_semantic_equivalence.py` lulus.
+- [x] Deliverables:
+  - `data/manifests/layout_manifest.csv`
+  - `data/manifests/write_cost_manifest.csv`
+  - `data/manifests/gate_g2g3g4_audit_report.json`
+  - `data/manifests/gate_equivalence_report.json`
+- **Status Gate:** **Gate G2, G3, G4 LULUS 100%**.
 
 ---
 
-### ⚪ H7 — Kalibrasi Selectivity dan Pilot Benchmark
-- [ ] Kalibrasi boundary 6 band selectivity (Gate **G5, G6**).
+### 🟡 H7 — Kalibrasi Selectivity dan Pilot Benchmark (In Progress)
+- [x] Kalibrasi boundary 6 band selectivity pada tabel baseline (`ais_pos_32`):
+  - S1 (0.1%): measured = 0.0893% (rel_err = 10.7%) [LULUS]
+  - S2 (1.0%): measured = 0.8987% (rel_err = 10.1%) [LULUS]
+  - S3 (5.0%): measured = 4.5521% (rel_err = 9.0%) [LULUS]
+  - S4 (20.0%): measured = 17.5434% (rel_err = 12.3%) [LULUS]
+  - S5 (50.0%): measured = 45.1344% (rel_err = 9.7%) [LULUS]
+  - S6 (90.0%): measured = 76.0963% (rel_err = 15.4%) [LULUS]
+  - **Gate G5 (All bands within 20% relative error):** LULUS.
+  - **Gate G6 (Monotonically ordered):** LULUS.
+  - Deliverables: `data/manifests/selectivity_manifest.csv` dan `data/manifests/gate_g5g6_selectivity_report.json`.
 - [ ] Uji pilot protokol benchmark (Gate **G8, G9**).
 
 ---

@@ -1,4 +1,4 @@
-﻿# Catatan Minggu 1
+# Catatan Minggu 1
 
 
 
@@ -299,29 +299,48 @@ protokol dibekukan.
   - **Status Gate G3 (Kelayakan Grid):** **PASSED (100%)**.
 
 **H6 — Generate seluruh variant dan audit**
+- tulis 4 variant dari canonical snapshot yang sama (`ais_pos_08`, `ais_pos_16`, `ais_pos_32`, `ais_pos_64`); ✅
+- audit realized file size, separasi IQR antar-kondisi, row-group tetap; ✅
+- uji semantic equivalence Q1–Q3 lintas variant; ✅
+- catat biaya write ke `data/manifests/write_cost_manifest.csv`. ✅
+- Deliverable: layout manifest lengkap. Gate: **G2, G3, G4**. ✅
 
-- tulis tiga variant sisanya dari canonical snapshot yang sama;
-
-- audit realized file size, separasi IQR antar-kondisi, row-group tetap;
-
-- uji semantic equivalence Q1–Q3 lintas variant;
-
-- catat biaya write ke `data/manifests/write_cost_manifest.csv`.
-
-- Deliverable: layout manifest lengkap. Gate: **G2, G3, G4**.
-
-
+  **📄 Hasil & Bukti Uji:**
+  - **Realisasi Grid Layout:**
+    - `08mib`: 66 file, median = 7.93 MiB (target 8 MiB), rg_median = 8.56 MiB, rows = 19.014.229
+    - `16mib`: 31 file, median = 14.70 MiB (target 16 MiB), rg_median = 8.78 MiB, rows = 19.014.229
+    - `32mib`: 15 file, median = 28.28 MiB (target 32 MiB), rg_median = 10.32 MiB, rows = 19.014.229
+    - `64mib`: 8 file, median = 51.45 MiB (target 64 MiB), rg_median = 10.50 MiB, rows = 19.014.229
+  - **Audit Gate G2 (Layout Completeness):** PASSED (4/4 varian terbuat lengkap).
+  - **Audit Gate G3 (IQR Separation & Feasibility):** PASSED (rasio median antar kondisi: 1.85x, 1.92x, 1.82x > 1.5x; separasi IQR valid; varian terbesar 8 file ≥ 8).
+  - **Audit Gate G4 (Row-group Control):** PASSED (spread relatif row-group = 0.2276 ≤ toleransi 0.25).
+  - **Audit Semantic Equivalence (Q1, Q2, Q3 via Trino):**
+    - Q1 (row scan count): 1.576.090 baris (100% identik di 4 varian).
+    - Q2 (avg & max SOG): avg = 3.139318, max = 101.0 (100% identik).
+    - Q3 (group-by MessageType): 6 grup identik sempurna di 4 varian.
+    - Unit test `tests/test_semantic_equivalence.py`: 6 passed in 5.61s (100% lulus).
+  - **Berkas Bukti Deliverable:**
+    - `data/manifests/layout_manifest.csv`
+    - `data/manifests/write_cost_manifest.csv`
+    - `data/manifests/gate_g2g3g4_audit_report.json`
+    - `data/manifests/gate_equivalence_report.json`
+  - **Status Gate G2, G3, G4:** **PASSED (100%)**.
 
 **H7 — Kalibrasi selectivity dan pilot protokol**
-
-- kalibrasi boundary `Date` untuk 6 band, hitung measured selectivity, bekukan;
-
+- kalibrasi boundary `Date` untuk 6 band, hitung measured selectivity, bekukan; ✅
+  - **Hasil Kalibrasi (Baseline `ais_pos_32`):**
+    - S1 (target 0.1%): measured = 0.0893% (16.983 baris), rel_err = 10.7% [PASSED]
+    - S2 (target 1.0%): measured = 0.8987% (170.874 baris), rel_err = 10.1% [PASSED]
+    - S3 (target 5.0%): measured = 4.5521% (865.549 baris), rel_err = 9.0% [PASSED]
+    - S4 (target 20.0%): measured = 17.5434% (3.335.748 baris), rel_err = 12.3% [PASSED]
+    - S5 (target 50.0%): measured = 45.1344% (8.581.961 baris), rel_err = 9.7% [PASSED]
+    - S6 (target 90.0%): measured = 76.0963% (14.469.122 baris), rel_err = 15.4% [PASSED]
+  - **Gate G5 (All bands within 20% relative error):** PASSED.
+  - **Gate G6 (Monotonically ordered):** PASSED.
+  - **Berkas Bukti Deliverable:** `data/manifests/selectivity_manifest.csv`, `data/manifests/gate_g5g6_selectivity_report.json`.
 - bekukan literal Q1–Q3 dan sampel MMSI untuk Q4;
-
 - pilot: warm-up, protokol cache, randomisasi blok;
-
 - **ukur durasi satu pass penuh** dan bandingkan dengan anggaran H9–H11.
-
 - Deliverable: selectivity manifest + estimasi durasi. Gate: **G5, G6, G8, G9**.
 
 

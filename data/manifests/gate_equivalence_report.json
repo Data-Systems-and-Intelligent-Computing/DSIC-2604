@@ -1,0 +1,166 @@
+{
+  "check_date": "2026-09-16T07:22:43.652777+00:00",
+  "predicate_window": {
+    "start_ts": "2023-08-15 00:00:00",
+    "end_ts": "2023-08-21 23:59:59"
+  },
+  "variants_checked": [
+    "08mib",
+    "16mib",
+    "32mib",
+    "64mib"
+  ],
+  "expected_total_rows": 19014229,
+  "results": {
+    "row_count": {
+      "status": "PASSED",
+      "counts": {
+        "08mib": 19014229,
+        "16mib": 19014229,
+        "32mib": 19014229,
+        "64mib": 19014229
+      }
+    },
+    "Q1": {
+      "status": "PASSED",
+      "results": {
+        "08mib": 1576090,
+        "16mib": 1576090,
+        "32mib": 1576090,
+        "64mib": 1576090
+      }
+    },
+    "Q2": {
+      "status": "PASSED",
+      "results": {
+        "08mib": {
+          "avg_sog": 3.139317750930786,
+          "max_sog": 101.0
+        },
+        "16mib": {
+          "avg_sog": 3.139317750930786,
+          "max_sog": 101.0
+        },
+        "32mib": {
+          "avg_sog": 3.139317750930786,
+          "max_sog": 101.0
+        },
+        "64mib": {
+          "avg_sog": 3.139317750930786,
+          "max_sog": 101.0
+        }
+      }
+    },
+    "Q3": {
+      "status": "PASSED",
+      "results": {
+        "08mib": [
+          {
+            "MessageType": 1,
+            "n": 276412
+          },
+          {
+            "MessageType": 2,
+            "n": 96
+          },
+          {
+            "MessageType": 3,
+            "n": 154845
+          },
+          {
+            "MessageType": 18,
+            "n": 876905
+          },
+          {
+            "MessageType": 19,
+            "n": 84
+          },
+          {
+            "MessageType": 27,
+            "n": 267748
+          }
+        ],
+        "16mib": [
+          {
+            "MessageType": 1,
+            "n": 276412
+          },
+          {
+            "MessageType": 2,
+            "n": 96
+          },
+          {
+            "MessageType": 3,
+            "n": 154845
+          },
+          {
+            "MessageType": 18,
+            "n": 876905
+          },
+          {
+            "MessageType": 19,
+            "n": 84
+          },
+          {
+            "MessageType": 27,
+            "n": 267748
+          }
+        ],
+        "32mib": [
+          {
+            "MessageType": 1,
+            "n": 276412
+          },
+          {
+            "MessageType": 2,
+            "n": 96
+          },
+          {
+            "MessageType": 3,
+            "n": 154845
+          },
+          {
+            "MessageType": 18,
+            "n": 876905
+          },
+          {
+            "MessageType": 19,
+            "n": 84
+          },
+          {
+            "MessageType": 27,
+            "n": 267748
+          }
+        ],
+        "64mib": [
+          {
+            "MessageType": 1,
+            "n": 276412
+          },
+          {
+            "MessageType": 2,
+            "n": 96
+          },
+          {
+            "MessageType": 3,
+            "n": 154845
+          },
+          {
+            "MessageType": 18,
+            "n": 876905
+          },
+          {
+            "MessageType": 19,
+            "n": 84
+          },
+          {
+            "MessageType": 27,
+            "n": 267748
+          }
+        ]
+      }
+    }
+  },
+  "overall": "PASSED",
+  "error": null
+}

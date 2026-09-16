@@ -1,0 +1,5 @@
+variant,target_file_size_mib,actual_file_count,median_file_size_mib,iqr_file_size_mib,min_file_size_mib,max_file_size_mib,cv_file_size,row_group_target_mib,median_row_group_mib,row_count,checksum,compression,row_order,partitioning
+08mib,8,66,7.93,1.08,0.42,8.78,0.4487,8,8.56,19014229,,snappy,date_clustered_fixed,unpartitioned
+16mib,16,31,14.70,1.83,0.07,16.95,0.3034,8,8.78,19014229,,snappy,date_clustered_fixed,unpartitioned
+32mib,32,15,28.28,1.33,23.23,30.98,0.0721,8,10.32,19014229,,snappy,date_clustered_fixed,unpartitioned
+64mib,64,8,51.45,2.33,49.32,54.75,0.0351,8,10.50,19014229,,snappy,date_clustered_fixed,unpartitioned
