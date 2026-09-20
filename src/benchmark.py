@@ -170,17 +170,45 @@ def load_benchmark_config():
     return bench_cfg, queries_cfg
 
 
-def build_conditions(bench_cfg):
+def _normalize_selectivity_id(band, available_keys):
+    """Resolve float band ke string key yang ada di queries.yaml.
+
+    Masalah: str(0.5) = '0.5', tapi queries.yaml memakai key '0.50'.
+    Strategi: coba str(band) dulu, lalu coba float-comparison ke semua key.
+    """
+    s = str(band)
+    if s in available_keys:
+        return s
+    # fallback: bandingkan nilai numerik
+    try:
+        band_f = float(band)
+        for k in available_keys:
+            try:
+                if abs(float(k) - band_f) < 1e-9:
+                    return k
+            except ValueError:
+                pass
+    except (TypeError, ValueError):
+        pass
+    return s  # biarkan KeyError terjadi saat runtime dengan pesan jelas
+
+
+def build_conditions(bench_cfg, available_band_keys=None):
     """Build all RunCondition from the factorial grid."""
     factors = bench_cfg["factors"]
     conditions = []
     for fs in factors["file_size_mib"]:
         for band in factors["selectivity_bands"]:
             for qf in factors["query_families"]:
+                sel_id = (
+                    _normalize_selectivity_id(band, available_band_keys)
+                    if available_band_keys
+                    else str(band)
+                )
                 conditions.append(RunCondition(
                     file_size_mib=fs,
                     query_family=qf,
-                    selectivity_id=str(band),
+                    selectivity_id=sel_id,
                 ))
     return conditions
 
@@ -239,7 +267,9 @@ def run_benchmark(dry_run=False, max_runs=None):
         measured_reps = 1
         logger.info("=== DRY-RUN MODE (1 block, no warm-up) ===")
 
-    conditions = build_conditions(bench_cfg)
+    # Resolusi selectivity_id ke key yang ada di queries.yaml
+    available_band_keys = list(queries_cfg.get("selectivity_bands", {}).keys())
+    conditions = build_conditions(bench_cfg, available_band_keys=available_band_keys)
     logger.info(f"Factorial grid: {len(conditions)} conditions")
     logger.info(f"  File sizes: {bench_cfg['factors']['file_size_mib']}")
     logger.info(f"  Selectivity bands: {bench_cfg['factors']['selectivity_bands']}")
