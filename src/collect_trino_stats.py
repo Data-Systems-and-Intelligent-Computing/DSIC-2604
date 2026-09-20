@@ -100,8 +100,8 @@ def normalize_query_info(info):
         "processed_input_rows": _first(
             stats, "processedInputPositions", "processedRows"
         ),
-        "completed_splits": _first(stats, "completedSplits"),
-        "total_splits": _first(stats, "totalSplits"),
+        "completed_splits": _first(stats, "completedSplits", "completedDrivers"),
+        "total_splits": _first(stats, "totalSplits", "totalDrivers"),
         "peak_memory_bytes": parse_data_size_bytes(
             _first(
                 stats,
