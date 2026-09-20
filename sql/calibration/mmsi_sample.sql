@@ -3,7 +3,7 @@
 -- Jalankan SEKALI, simpan hasilnya ke data/manifests/, lalu jangan diulang:
 -- literal Q4 harus identik di seluruh layout variant.
 SELECT Mmsi, COUNT(*) AS n
-FROM iceberg.dsic2604.ais_pos_128
+FROM iceberg.dsic2604.ais_pos_32
 GROUP BY Mmsi
 ORDER BY n DESC
 LIMIT 50;

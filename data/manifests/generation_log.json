@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T07:21:14.841564+00:00",
+  "generated_at": "2026-09-20T05:12:27.898794+00:00",
   "canonical_dataset": "D:\\DSIC-2604\\Dataset\\Dataset_AIS_POS.parquet",
   "grid": [
     8,
@@ -15,28 +15,28 @@
       "target_file_size_mib": 8,
       "table_name": "iceberg.dsic2604.ais_pos_08",
       "row_count": 19014229,
-      "wall_seconds": 30.300297199981287
+      "wall_seconds": 39.949656199999936
     },
     {
       "variant": "16mib",
       "target_file_size_mib": 16,
       "table_name": "iceberg.dsic2604.ais_pos_16",
       "row_count": 19014229,
-      "wall_seconds": 20.402249599981587
+      "wall_seconds": 26.368312400000036
     },
     {
       "variant": "32mib",
       "target_file_size_mib": 32,
       "table_name": "iceberg.dsic2604.ais_pos_32",
       "row_count": 19014229,
-      "wall_seconds": 24.518793699971866
+      "wall_seconds": 27.442647899999997
     },
     {
       "variant": "64mib",
       "target_file_size_mib": 64,
       "table_name": "iceberg.dsic2604.ais_pos_64",
       "row_count": 19014229,
-      "wall_seconds": 22.2014010999701
+      "wall_seconds": 22.81386610000004
     }
   ]
 }

@@ -37,6 +37,7 @@ from src.inspect_parquet import (
     grid_is_feasible,
     inspect_directory,
     row_group_control,
+    verify_nested_column_type,
 )
 
 logging.basicConfig(
@@ -117,7 +118,7 @@ def write_layout_manifest(inspections, output_path):
             str(ROW_GROUP_TARGET_MIB),
             f"{info['row_group_mib_median']:.2f}" if info["row_group_mib_median"] else "",
             str(info["row_count"]),
-            "",  # checksum computed per-variant is complex; skip for now
+            f"rowcount:{info['row_count']}",  # semantic invariant: identical row count
             COMPRESSION,
             "date_clustered_fixed",
             "unpartitioned",
@@ -188,10 +189,16 @@ def main():
                 info = inspect_directory(variant_dir)
                 inspections[target_mib] = info
 
+                # Gate G4 addendum: verify id_chunk nested type
+                nested_check = verify_nested_column_type(variant_dir)
+                info["id_chunk_preserved"] = nested_check["preserved"]
+
                 logger.info(f"  {target_mib:>3d} MiB: {info['file_count']} files, "
                            f"median={info['file_size_mib_median']:.2f} MiB, "
                            f"rows={info['row_count']:,}, "
                            f"rg_median={info['row_group_mib_median']:.2f} MiB")
+                logger.info(f"  id_chunk type: {nested_check['arrow_type']} "
+                           f"(preserved={nested_check['preserved']})")
             except Exception as e:
                 logger.error(f"  ❌ Error inspecting {target_mib} MiB variant: {e}")
                 all_passed = False
@@ -246,6 +253,17 @@ def main():
     for k, v in g4_result["row_group_mib_median_by_variant"].items():
         logger.info(f"  {k} MiB: rg_median = {v:.2f} MiB")
 
+    # Gate G4 addendum: id_chunk nested type
+    id_chunk_ok = all(
+        inspections[k].get("id_chunk_preserved", False)
+        for k in inspections
+    )
+    if not id_chunk_ok:
+        g4_passed = False
+        logger.warning("  ⚠️ id_chunk nested type NOT preserved in some variants!")
+    else:
+        logger.info("  ✓ id_chunk nested type preserved across all variants")
+
     # ---- Summary ----
     overall = g2_passed and g3_passed and g4_passed
     logger.info("")
@@ -272,7 +290,8 @@ def main():
                    "separation_results": g3_results,
                    "feasibility": feas if sorted_sizes else None},
             "G4": {"status": "PASSED" if g4_passed else "FAILED",
-                   "row_group_control": g4_result},
+                   "row_group_control": g4_result,
+                   "id_chunk_preserved": id_chunk_ok},
         },
         "variant_summaries": {
             f"{k:02d}mib": {

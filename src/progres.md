@@ -6,12 +6,19 @@
 
 ---
 
+## ⚠️ Prinsip Kolaborasi & Eksekusi
+- **Peran AI / Asisten:** Hanya memberikan instruksi, arahan langkah demi langkah, penjelasan konsep, dan rekomendasi kode/perintah.
+- **Peran Pengguna (User):** Mengetik kode, memodifikasi file, dan menjalankan perintah di terminal.
+- **Aturan Eksekusi:** AI **TIDAK BOLEH** mengeksekusi skrip/perintah terminal secara mandiri kecuali diminta secara eksplisit oleh Pengguna.
+
+---
+
 ## 📌 Status Terkini Proyek
 - **Status Sinkronisasi Repo:**
   - Repositori remote GitHub: `Data-Systems-and-Intelligent-Computing/DSIC-2604`.
   - Folder lokal: Ditemukan folder `D:\DSIC-2604` (sudah ter-clone dengan git) dan `D:\Tugas Akhir` (workspace aktif di IDE).
   - Berkas H1 telah dibuat di lokal dan dicatat di GitHub.
-- **Fase Aktif:** **Minggu 1 (H3 — Deploy Lakehouse & Smoke Test)**.
+- **Fase Aktif:** **Minggu 2 (H8–H14 — Main Factorial Benchmark)**.
 
 ---
 
@@ -19,7 +26,7 @@
 
 | Minggu | Fokus | Eksperimen | Gate Utama | Status |
 |---|---|---|---|---|
-| **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | 🟡 In Progress (H1–H6 ✅, H7 🟡) |
+| **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | ✅ Selesai (H1–H7 ✅) |
 | **Minggu 2 (H8–H14)** | Main Factorial Benchmark | E3 | Kelengkapan run & telemetry | ⚪ Belum Dimulai |
 | **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | ⚪ Belum Dimulai |
 | **Minggu 4 (H22–H28)** | Reproduksi, Ekstensi, Manuskrip | E5, E6 | Quality gate skripsi/artikel | ⚪ Belum Dimulai |
@@ -104,7 +111,7 @@
 
 ---
 
-### 🟡 H7 — Kalibrasi Selectivity dan Pilot Benchmark (In Progress)
+### ✅ H7 — Kalibrasi Selectivity dan Pilot Benchmark (Selesai)
 - [x] Kalibrasi boundary 6 band selectivity pada tabel baseline (`ais_pos_32`):
   - S1 (0.1%): measured = 0.0893% (rel_err = 10.7%) [LULUS]
   - S2 (1.0%): measured = 0.8987% (rel_err = 10.1%) [LULUS]
@@ -115,7 +122,11 @@
   - **Gate G5 (All bands within 20% relative error):** LULUS.
   - **Gate G6 (Monotonically ordered):** LULUS.
   - Deliverables: `data/manifests/selectivity_manifest.csv` dan `data/manifests/gate_g5g6_selectivity_report.json`.
-- [ ] Uji pilot protokol benchmark (Gate **G8, G9**).
+- [x] Uji pilot protokol benchmark (Gate **G8, G9**).
+  - Berhasil dibekukan Q1-Q3 di `configs/queries.yaml` dan Q4 di `data/manifests/q4_mmsi_sample.csv`.
+  - Durasi Pilot: 176.43 detik.
+  - Estimasi total durasi main benchmark: ~4.02 jam.
+  - Deliverables: `data/manifests/gate_g8_g9_pilot_report.json`.
 
 ---
 
