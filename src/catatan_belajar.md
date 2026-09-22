@@ -1035,8 +1035,126 @@ PENUTUPAN RESMI MINGGU 2 (H8–H14): LULUS 100% (ALL GATES PASSED)
 ## 6. Ruang Tanya-Jawab & Klarifikasi Pengguna (Q&A Khusus H14)
 *(Belum ada pertanyaan yang diajukan untuk H14).*
 
+---
 
+# ==============================================================================
+# 📍 HARI 15 (H15) — ANALISIS PAIRED DIFFERENCE & EVALUASI CROSSOVER
+# ==============================================================================
 
+## 1. Konteks & Mengapa Hari 15 Ini Ada?
+
+Kita sudah memiliki 1.440 ukuran waktu eksekusi kueri (latensi) dari 72 kondisi faktorial (Minggu 2). Tetapi angka-angka mentah itu belum menjawab pertanyaan ilmiah inti:
+
+> **"Apakah 8, 16, atau 64 MiB lebih cepat atau lebih lambat dibanding 32 MiB (baseline)? Dan apakah pemenang berubah seiring selektivitas kueri yang makin tinggi?"**
+
+**Analogi nyata:**
+Bayangkan empat kurir pengiriman paket (8, 16, 32, 64 MiB), dan kita ingin tahu mana yang paling cepat tergantung seberapa banyak paket yang dikirim sekaligus (= selektivitas kueri). Jika kurir kecil lebih cepat saat paket sedikit tetapi menjadi lebih lambat saat paket banyak — itulah yang disebut **crossover** (pergeseran pemenang).
+
+H15 menjawab ini dengan metode **Paired Difference Analysis**:
+- Untuk setiap *"sesi kerja"* (blok pengulangan yang sama), bandingkan waktu kurir-x vs kurir-32 MiB.
+- Hitung selisih (Δ = latency(x) − latency(32 MiB)), negatif berarti x lebih cepat.
+- Evaluasi apakah ada pergeseran tanda Δ seiring naiknya selektivitas.
+
+---
+
+## 2. Istilah-Istilah Teknis
+
+| Istilah | Penjelasan Sederhana |
+|:---|:---|
+| **Paired Difference (Δ)** | Selisih latensi antara ukuran file x dan baseline (32 MiB) pada *blok repetisi yang sama*. Negatif = x lebih cepat. |
+| **Baseline** | Titik referensi perbandingan. Di sini adalah ukuran file 32 MiB (sesuai `configs/crossover.yaml`). |
+| **Block index** | Nomor sesi/blok pengulangan (2–21 = 20 blok). Satu blok berisi 72 kueri (satu per kondisi faktorial), dieksekusi secara berurutan. Blok yang sama = kondisi sistem yang setara → pairing yang adil. |
+| **Sign change (perubahan tanda)** | Ketika Δ median berubah dari negatif ke positif (atau sebaliknya) seiring naiknya selektivitas. Ini sinyal crossover. |
+| **Crossover** | Fenomena pergeseran "pemenang": ukuran file yang lebih cepat di selektivitas rendah menjadi lebih lambat di selektivitas tinggi (atau sebaliknya). |
+| **Replication across query families** | Crossover dianggap sah hanya jika terlihat di ≥ 2 dari 3 keluarga kueri (Q1, Q2, Q3). Ini mencegah kesimpulan berdasarkan satu kejadian kebetulan. |
+| **P5–P95 empiris** | Rentang 90% tengah dari 20 blok Δ. Mengindikasikan variabilitas selisih latensi. |
+| **dominant_sign** | Tanda mayoritas: jika 18 dari 20 blok menunjukkan Δ < 0, dominant_sign = "negative" (x lebih cepat secara konsisten). |
+
+---
+
+## 3. Berkas yang Terlibat & Fungsinya
+
+| Berkas | Peran |
+|:---|:---|
+| `scripts/analyze_paired_diff_h15.py` | Script utama H15: membaca data, menghitung Δ, mengevaluasi crossover, menyimpan laporan. |
+| `results/raw/runs_frozen.jsonl` | **Input:** 1.440 measured runs dengan `block_index` untuk pairing. |
+| `configs/crossover.yaml` | **Konfigurasi:** baseline=32 MiB, CI=95%, require_sign_change=true, require_replication=true. |
+| `results/tables/paired_diff_table.csv` | **Output:** 1.080 baris Δ per blok per kondisi non-baseline. |
+| `results/tables/paired_diff_summary.csv` | **Output:** 54 baris ringkasan statistik (mean Δ, median Δ, P5–P95, pct_negative) per kondisi. |
+| `data/manifests/crossover_eval.json` | **Output:** Laporan evaluasi crossover resmi, termasuk verdict H2. |
+
+---
+
+## 4. Bedah Parameter & Telemetri
+
+### Dimensi analisis:
+- **File sizes dibandingkan:** 8, 16, 64 MiB (vs baseline 32 MiB) → **3 perbandingan**
+- **Query families:** Q1 (predicate scan), Q2 (selective aggregation), Q3 (selective group-by) → **3 QF**
+- **Selectivity levels:** 0.0001%, 0.001%, 0.01%, 0.05%, 0.10%, 0.50% → **6 level**
+- **Blok repetisi per kondisi:** 20 blok → **20 pasang Δ per sel kondisi**
+- **Total paired rows:** 3 × 3 × 6 × 20 = **1.080 baris**
+
+### Statistik ringkasan per sel kondisi:
+| Kolom | Arti |
+|:---|:---|
+| `mean_delta_ms` | Rata-rata Δ dari 20 blok. |
+| `median_delta_ms` | Median Δ — lebih robust terhadap outlier. |
+| `p5_delta_ms` / `p95_delta_ms` | Interval 90% empiris (CI P5–P95). |
+| `pct_negative` | Persentase blok di mana x lebih cepat dari 32 MiB. |
+| `dominant_sign` | `"negative"` = x konsisten lebih cepat; `"positive"` = x konsisten lebih lambat; `"tie"` = tidak jelas. |
+
+---
+
+## 5. Bukti Eksekusi & Temuan Ilmiah Gate H15
+
+### Log Eksekusi:
+```
+2026-09-22 10:50:21 [INFO] Config crossover: baseline=32 MiB, CI=95%, require_sign_change=True, require_replication=True
+2026-09-22 10:50:21 [INFO] -> 1440 measured runs dimuat
+2026-09-22 10:50:21 [INFO] -> Indeks dibangun: 1440 entri unik
+2026-09-22 10:50:21 [INFO] -> 1080 baris paired difference dihitung
+2026-09-22 10:50:21 [INFO] -> 54 baris ringkasan dihasilkan
+2026-09-22 10:50:21 [INFO]    8 MiB vs 32 MiB: crossover di 0/3 query families → ❌ NOT CONFIRMED
+2026-09-22 10:50:21 [INFO]   16 MiB vs 32 MiB: crossover di 0/3 query families → ❌ NOT CONFIRMED
+2026-09-22 10:50:21 [INFO]   64 MiB vs 32 MiB: crossover di 2/3 query families → ✅ CONFIRMED
+```
+
+### Ringkasan Temuan Kunci:
+
+**8 MiB vs 32 MiB — SELALU LEBIH CEPAT (dominant_sign = negative di semua 18 sel):**
+- Di seluruh selektivitas dan seluruh query family, 8 MiB secara konsisten LEBIH CEPAT dari 32 MiB.
+- Pct_negative = 95–100% di semua kondisi.
+- Rata-rata selisih: ~−45 ms (selektivitas rendah) hingga ~−218 ms (selektivitas 0.50, Q2).
+- **Tidak ada crossover** — 8 MiB tetap menjadi pemenang di semua titik selektivitas.
+
+**16 MiB vs 32 MiB — LEBIH CEPAT, TAPI MARGIN MENGECIL:**
+- 16 MiB juga konsisten lebih cepat dari 32 MiB (dominant_sign = negative di hampir semua sel).
+- Satu sel `16 MiB / Q3 / 0.50` menunjukkan `dominant_sign = "tie"` (pct_negative = 50%) — margin hampir nol.
+- **Tidak ada crossover** — 16 MiB masih lebih cepat atau setara di semua titik.
+
+**64 MiB vs 32 MiB — CROSSOVER TERKONFIRMASI ✅:**
+- Di selektivitas **sangat rendah (0.0001, 0.001):** 64 MiB **lebih LAMBAT** dari 32 MiB secara konsisten (pct_negative = 0–10%, Δ median = +16 hingga +36 ms). Ini karena ukuran file besar → lebih banyak data dibaca meski hanya sedikit baris yang dibutuhkan.
+- Di selektivitas **menengah-tinggi (0.10, 0.05):** 64 MiB **lebih LAMBAT atau bersaing** (Q1/0.10: median Δ = +29 ms).
+- Di selektivitas **sangat tinggi (0.50):** 64 MiB mulai **mendekati atau mengungguli** 32 MiB (Q1/0.50: median Δ = −18 ms; Q2/0.50: −28 ms; Q3/0.50: +6 ms — tidak konsisten).
+- **Crossover terkonfirmasi di Q1 dan Q2** (sign change terdeteksi: positif → negatif). Q3 tidak cukup konsisten (tie di 0.50).
+
+### Evaluasi Hipotesis:
+
+| Hipotesis | Hasil H15 |
+|:---|:---|
+| **H2 (Crossover):** "Relative winner berubah dari ukuran lebih kecil ke lebih besar ketika selectivity meningkat." | ✅ **SUPPORTED** — 64 MiB vs 32 MiB menunjukkan crossover terkonfirmasi di 2/3 QF. |
+| **H1 (Interaction):** "Efek file size terhadap latency bergantung pada measured query selectivity." | ✅ **DIDUKUNG** — Besarnya Δ berubah seiring selektivitas (8 MiB: Δ makin besar negatif; 64 MiB: tanda berbalik). |
+
+### Deliverables H15:
+- **[paired_diff_table.csv](../results/tables/paired_diff_table.csv):** 1.080 baris Δ per blok.
+- **[paired_diff_summary.csv](../results/tables/paired_diff_summary.csv):** 54 sel ringkasan statistik.
+- **[crossover_eval.json](../data/manifests/crossover_eval.json):** Laporan evaluasi crossover resmi.
+- **Status Gate H15:** **SELESAI ✅ — CROSSOVER_DETECTED, H2 SUPPORTED**
+
+---
+
+## 6. Ruang Tanya-Jawab & Klarifikasi Pengguna (Q&A Khusus H15)
+*(Belum ada pertanyaan yang diajukan untuk H15).*
 
 
 

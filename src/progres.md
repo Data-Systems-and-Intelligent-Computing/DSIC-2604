@@ -28,7 +28,7 @@
 |---|---|---|---|---|
 | **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | ✅ Selesai (H1–H7 ✅) |
 | **Minggu 2 (H8–H14)** | Main Factorial Benchmark | E3 | Kelengkapan run & telemetry | ✅ Selesai (H8–H14 ✅) |
-| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | ⚪ Belum Dimulai |
+| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | 🔄 Berjalan (H15 ✅) |
 | **Minggu 4 (H22–H28)** | Reproduksi, Ekstensi, Manuskrip | E5, E6 | Quality gate skripsi/artikel | ⚪ Belum Dimulai |
 
 ---
@@ -236,6 +236,27 @@
 
 ---
 
+## 📋 Rincian Progres Minggu 3
+
+### ✅ H15 — Analisis Paired Difference & Evaluasi Crossover (Selesai)
+- [x] Buat skrip analisis: `scripts/analyze_paired_diff_h15.py`.
+- [x] Hitung paired latency difference Δ = latency(x) − latency(32 MiB) per blok repetisi:
+  - 3 ukuran non-baseline (8, 16, 64 MiB) × 3 QF × 6 selektivitas × 20 blok = **1.080 baris Δ**.
+- [x] Hitung ringkasan statistik: mean Δ, median Δ, P5–P95, pct_negative, dominant_sign → **54 sel ringkasan**.
+- [x] Evaluasi kriteria crossover (require_sign_change=true, require_replication ≥ 2/3 QF):
+  - **8 MiB vs 32 MiB:** 0/3 QF → ❌ NOT CONFIRMED (8 MiB selalu lebih cepat, tidak ada crossover).
+  - **16 MiB vs 32 MiB:** 0/3 QF → ❌ NOT CONFIRMED (16 MiB juga lebih cepat atau setara).
+  - **64 MiB vs 32 MiB:** 2/3 QF (Q1, Q2) → ✅ CONFIRMED (64 MiB lebih lambat di sel. rendah, lebih cepat di sel. tinggi).
+- [x] **Verdict Global: CROSSOVER_DETECTED — Hipotesis H2 SUPPORTED**.
+- [x] Deliverables:
+  - `scripts/analyze_paired_diff_h15.py`.
+  - `results/tables/paired_diff_table.csv` (1.080 baris Δ per blok).
+  - `results/tables/paired_diff_summary.csv` (54 sel ringkasan statistik).
+  - `data/manifests/crossover_eval.json` (laporan evaluasi crossover resmi).
+- **Status Milestone H15:** **PAIRED DIFFERENCE & CROSSOVER ANALYSIS LULUS 100%**.
+
+---
+
 ## 📝 Catatan Sesi & Keputusan
 - **11 September 2026:**
   - Audit workspace menemukan keberadaan clone repo di `D:\DSIC-2604` dan workspace aktif di `D:\Tugas Akhir`.
@@ -250,3 +271,4 @@
   - Penyelesaian H12: Pembekuan data mentah ke `results/raw/runs_frozen.jsonl` berhasil tuntas (1.584 baris, 1.403.827 bytes) dan disegel dengan sidik jari SHA-256 (`a868d202...`). Data mentah resmi berstatus `FROZEN_AND_VERIFIED`. Deliverable tersimpan di `data/manifests/raw_freeze_manifest.json`.
   - Penyelesaian H13: Eksekusi Out-of-Grid Benchmark Q4 Entity Robustness berhasil tuntas (200 run, 0 failed, durasi 381,8 detik). Temuan empiris mengonfirmasi hipotesis H4 & RQ5: ketika file skipping tidak membantu, file 64 MiB mengungguli 8 MiB akibat lebih rendahnya overhead penjadwalan split (53 vs 76 splits). Deliverable tersimpan di `results/raw/q4_runs.jsonl` dan `data/manifests/q4_robustness_report.json`.
   - Penyelesaian H14: Agregasi 1.440 measured runs menjadi ringkasan statistik P50, P95, IQR, dan telemetri per 72 kondisi berhasil tuntas ke `results/processed/benchmark_summary_p50_p95.csv`. Seluruh gerbang Minggu 2 resmi lulus 100% (ALL GATES PASSED). Repositori siap bertransisi ke Minggu 3 (Analisis, Visualisasi, dan Uji Hipotesis). Deliverable tersimpan di `data/manifests/week2_completion_report.json`.
+  - Penyelesaian H15: Analisis Paired Difference 1.080 baris Δ latensi berhasil tuntas. **Crossover 64 MiB vs 32 MiB terkonfirmasi di 2/3 query family (Q1 & Q2)** — 64 MiB lebih lambat di selektivitas rendah (Δ median ≈ +34 ms) dan berbalik lebih cepat di selektivitas tinggi (Δ median Q1/0.50 ≈ −18 ms). 8 MiB dan 16 MiB tidak menunjukkan crossover (selalu lebih cepat dari 32 MiB). Hipotesis H2 (Crossover) dan H1 (Interaction) didukung data. Deliverable: `results/tables/paired_diff_table.csv`, `results/tables/paired_diff_summary.csv`, `data/manifests/crossover_eval.json`.
