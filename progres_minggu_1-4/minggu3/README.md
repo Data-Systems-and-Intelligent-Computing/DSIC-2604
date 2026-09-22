@@ -230,7 +230,7 @@ HASIL GLOBAL CROSSOVER:
 
 - [x] **Skrip Analisis & Plotting:** Mengembangkan skrip otomatisasi [`scripts/analyze_h16_bootstrap_plots.py`](file:///d:/DSIC-2604/scripts/analyze_h16_bootstrap_plots.py) untuk kuantifikasi ketidakpastian non-parametrik dan generasi grafik beresolusi 300 DPI.
 - [x] **Bootstrap Resampling Paired Difference ($B=2.000$ repetisi):** Menghitung estimasi persentil 95% CI untuk selisih latensi berpasangan $\Delta = \text{latency}(x) - \text{latency}(32\text{ MiB})$ pada 54 sel kombinasi faktorial.
-- [x] **Uji Signifikansi Statistik ($\alpha = 0.05$):** Menentukan apakah selang kepercayaan menjauhi nol ($0 \notin [CI_{lower}, CI_{upper}]$) untuk memvalidasi superioritas/inferioritas ukuran file secara formal.
+- [x] **Uji Signifikansi Statistik ($\alpha = 0.05$):** Menentukan apakah selang kepercayaan menjauhi nol (`0 ∉ [CI_lower, CI_upper]`) untuk memvalidasi superioritas/inferioritas ukuran file secara formal.
 - [x] **Bootstrap Resampling Median Latensi ($P_{50}$):** Menghitung 95% CI untuk median latensi pada seluruh 72 kondisi faktorial untuk digunakan sebagai *shaded error band*.
 - [x] **Pembuatan Figure 4 (Heatmap Rasio Latensi Relatif):** Menghasilkan matriks 3 panel (Q1, Q2, Q3) rasio latensi terhadap baseline 32 MiB lengkap dengan label numerik, persentase deviasi, dan bintang signifikansi (`*`).
 - [x] **Pembuatan Figure 5 (Kurva Latensi vs Selektivitas Q1):** Menampilkan garis $P_{50}$ (solid + 95% CI shaded) dan $P_{95}$ (dashed) untuk Q1 (Predicate Scan) dengan penanda titik crossover 64 MiB vs 32 MiB.
@@ -244,7 +244,7 @@ HASIL GLOBAL CROSSOVER:
 
 Dalam studi lakehouse bersumber daya terbatas (4 vCPU / 16 GB RAM), estimasi titik tunggal (seperti mean atau median sederhana) dapat menyesatkan akibat variabilitas runtime sistem operasi dan mesin kueri JVM Trino. Oleh karena itu, H16 menerapkan **kuantifikasi ketidakpastian (*uncertainty quantification*)** secara statistik rigor melalui:
 1. **Interval Kepercayaan Non-Parametrik Bootstrap (95% CI):** Menguji ketahanan temuan H15 tanpa mengasumsikan distribusi normal (Gaussian) pada data latensi, yang lazimnya memiliki skewness positif (*heavy tail*).
-2. **Pengujian Hipotesis Inferensial:** Jika interval $[CI_{2.5\%}, CI_{97.5\%}]$ tidak memuat angka 0, kita dapat menyimpulkan dengan keyakinan 95% ($p < 0.05$) bahwa perbedaan performa antar-ukuran file bersifat nyata secara sistemik dan bukan fluktuasi acak.
+2. **Pengujian Hipotesis Inferensial:** Jika interval `[CI 2.5%, CI 97.5%]` tidak memuat angka 0, kita dapat menyimpulkan dengan keyakinan 95% ($p < 0.05$) bahwa perbedaan performa antar-ukuran file bersifat nyata secara sistemik dan bukan fluktuasi acak.
 3. **Visualisasi Komprehensif Publikasi Ilmiah:** Menyediakan representasi visual intuitif untuk pembaca manuskrip/skripsi dalam format vektor PDF dan raster resolusi tinggi (300 DPI PNG).
 
 ---
@@ -256,8 +256,8 @@ Dalam studi lakehouse bersumber daya terbatas (4 vCPU / 16 GB RAM), estimasi tit
 - **Statistik Uji:**
   - Median Paired Difference $\Delta^* = \text{median}(\Delta_b^*)$ untuk $b \in [1, 20]$.
   - Median Absolute Latency $P_{50}^* = \text{median}(L_i^*)$ untuk $i \in [1, 20]$.
-- **Interval Kepercayaan 95%:**
-  $$CI_{95\%} = \left[ Q(0.025), Q(0.975) \right]$$
+- **Interval Kepercayaan 95%:**  
+  `CI 95% = [ Q(0.025), Q(0.975) ]`  
   di mana $Q(p)$ adalah kuantil persentil ke-$p$ dari distribusi $2.000$ nilai median hasil resampling.
 
 ---
@@ -265,24 +265,24 @@ Dalam studi lakehouse bersumber daya terbatas (4 vCPU / 16 GB RAM), estimasi tit
 #### 📊 3. Hasil Analisis Statistik & Signifikansi Bootstrap 95% CI
 
 Dari total 54 kombinasi berpasangan non-baseline vs baseline 32 MiB:
-- **42 kondisi (77,8%)** terbukti **berbeda secara signifikan** dari baseline 32 MiB ($p < 0.05$, $0 \notin CI_{95\%}$).
-- **12 kondisi (22,2%)** berada dalam zona netral / ekuivalen ($0 \in CI_{95\%}$).
+- **42 kondisi (77,8%)** terbukti **berbeda secara signifikan** dari baseline 32 MiB ($p < 0.05$, `0 ∉ CI 95%`).
+- **12 kondisi (22,2%)** berada dalam zona netral / ekuivalen (`0 ∈ CI 95%`).
 
 ##### Ringkasan Temuan Signifikansi per Ukuran File:
 
 1. **Varian 8 MiB vs 32 MiB (Dominasi Total & Signifikan 100%):**
-   - **18 dari 18 kondisi (100%)** bernilai negatif dan **signifikan secara statistik** ($0 \notin CI_{95\%}$).
+   - **18 dari 18 kondisi (100%)** bernilai negatif dan **signifikan secara statistik** (`0 ∉ CI 95%`).
    - Keuntungan speedup berkisar antara **1.29x hingga 1.63x lebih cepat** dibanding baseline 32 MiB.
-   - Contoh ekstrem: Pada Q2 selektivitas 50%, median $\Delta = -218.87\text{ ms}$ dengan $CI_{95\%} = [-232.26, -189.19]\text{ ms}$ (sangat jauh di bawah nol).
+   - Contoh ekstrem: Pada Q2 selektivitas 50%, median $\Delta = -218.87\text{ ms}$ dengan `CI 95% = [-232.26, -189.19] ms` (sangat jauh di bawah nol).
 
 2. **Varian 16 MiB vs 32 MiB (Konsistensi Keunggulan Moderat):**
-   - **13 dari 18 kondisi (72,2%)** terbukti signifikan lebih cepat ($CI_{95\%}$ di bawah nol).
+   - **13 dari 18 kondisi (72,2%)** terbukti signifikan lebih cepat (`CI 95%` di bawah nol).
    - Pada Q1 dan Q3 di rentang selektivitas 0.01%–10%, 16 MiB memberikan speedup signifikan 1.05x–1.23x.
-   - Pada selektivitas 50%, margin latensi menyempit hingga interval CI memotong nol (contoh Q3 50%: median $\Delta = -0.30\text{ ms}, CI_{95\%} = [-30.42, 26.24]\text{ ms}$).
+   - Pada selektivitas 50%, margin latensi menyempit hingga interval CI memotong nol (contoh Q3 50%: median $\Delta = -0.30\text{ ms}$, `CI 95% = [-30.42, 26.24] ms`).
 
 3. **Varian 64 MiB vs 32 MiB (Bukti Empiris Crossover & Frontier Transisi):**
-   - **Pada selektivitas sangat rendah (0.01% – 0.1%):** 64 MiB terbukti **signifikan lebih lambat** dari baseline 32 MiB pada seluruh Query Families ($0 \notin CI_{95\%}$), dengan penalti latensi $+16.85\text{ ms}$ s/d $+36.50\text{ ms}$.
-   - **Pada selektivitas menengah s/d tinggi (1.0% – 50%):** Terjadi pembalikan median $\Delta$ ke arah negatif pada Q1 ($-18.12\text{ ms}$) dan Q2 ($-28.50\text{ ms}$). Selang kepercayaan 95% Bootstrap pada selektivitas 50% menyentuh angka 0 ($[-30.46, 10.29]\text{ ms}$ untuk Q1 dan $[-38.85, 1.58]\text{ ms}$ untuk Q2).
+   - **Pada selektivitas sangat rendah (0.01% – 0.1%):** 64 MiB terbukti **signifikan lebih lambat** dari baseline 32 MiB pada seluruh Query Families (`0 ∉ CI 95%`), dengan penalti latensi $+16.85\text{ ms}$ s/d $+36.50\text{ ms}$.
+   - **Pada selektivitas menengah s/d tinggi (1.0% – 50%):** Terjadi pembalikan median $\Delta$ ke arah negatif pada Q1 ($-18.12\text{ ms}$) dan Q2 ($-28.50\text{ ms}$). Selang kepercayaan 95% Bootstrap pada selektivitas 50% menyentuh angka 0 (`[-30.46, 10.29] ms` untuk Q1 dan `[-38.85, 1.58] ms` untuk Q2).
    - **Interpretasi Ilmiah:** Menemukan bahwa titik crossover diapit oleh *region of uncertainty* (zona ketidakpastian transisi) merupakan temuan empiris penting yang memvalidasi perlunya pemetaan *Empirical Crossover Frontier* di H17.
 
 ---
@@ -374,8 +374,8 @@ STATUS: LULUS 100% (ALL CHECKS PASSED) ✅
 - [x] **Skrip Analisis Crossover Frontier:** Mengembangkan skrip otomatisasi [`scripts/analyze_h17_crossover_frontier.py`](file:///d:/DSIC-2604/scripts/analyze_h17_crossover_frontier.py) untuk mengklasifikasikan domain operasional dan memetakan batas keputusan.
 - [x] **Penerapan Kriteria Crossover Terdaftar:** Menguji kriteria formal sesuai `configs/crossover.yaml` (`require_sign_change: true`, replikasi $\ge 2/3$ QF, `allow_uncertain_region: true`).
 - [x] **Karakterisasi Tiga Domain Operasional (64 MiB vs 32 MiB):**
-  - **Zona I (Baseline Preferred):** Selektivitas $0.01\% - 0.1\%$ ($CI_{95\%} > 0$, 32 MiB signifikan lebih cepat, 64 MiB menderita skipping penalty hingga $+36.50\text{ ms}$).
-  - **Zona II (Region of Uncertainty / Transition Band):** Selektivitas $1.0\% - 10.0\%$ ($0 \in CI_{95\%}$, margin sempit di sekitar nol, transisi antara keunggulan skipping dan overhead split).
+  - **Zona I (Baseline Preferred):** Selektivitas $0.01\% - 0.1\%$ (`CI 95% > 0`, 32 MiB signifikan lebih cepat, 64 MiB menderita skipping penalty hingga $+36.50\text{ ms}$).
+  - **Zona II (Region of Uncertainty / Transition Band):** Selektivitas $1.0\% - 10.0\%$ (`0 ∈ CI 95%`, margin sempit di sekitar nol, transisi antara keunggulan skipping dan overhead split).
   - **Zona III (Large-File Preferred vs Baseline):** Selektivitas $50.0\%$ pada Q1 dan Q2 (median $\Delta$ berbalik negatif hingga $-28.50\text{ ms}$ akibat efisiensi penjadwalan split Trino).
 - [x] **Kalkulasi Titik Crossover Numerik ($s^*$):**
   - **Q1 (Predicate Scan):** $s^* \approx 0.58\%$ (titik pembalikan pertama menuju $\Delta < 0$).
@@ -409,21 +409,21 @@ Peristiwa pembalikan arah performa ini disebut **Crossover**.
 Tujuan H17 adalah mengintegrasikan temuan analitis H15 (paired difference) dan H16 (Bootstrap 95% CI) ke dalam satu kerangka teoritis dan empiris yang formal:
 1. **Mencari Titik Persilangan Numerik ($s^*$):** Menentukan di angka selektivitas berapa persen persisnya ukuran 64 MiB mulai mengungguli 32 MiB.
 2. **Karakterisasi Region of Uncertainty (Zona Ketidakpastian):**
-   Dalam sistem lakehouse nyata pada infrastruktur bersumber daya terbatas (4 vCPU / 16 GB RAM), performa kueri tidak berubah secara biner/instan pada satu angka desimal selektivitas tunggal. Fluktuasi runtime Trino dan I/O MinIO menciptakan *bandwidth of transition* di mana perbedaan performa berada dalam batas noise floor ($0 \in CI_{95\%}$). Protokol riset secara eksplisit menyertakan klausul `allow_uncertain_region: true` agar klaim ilmiah mencerminkan realitas fisik sistem secara jujur.
+   Dalam sistem lakehouse nyata pada infrastruktur bersumber daya terbatas (4 vCPU / 16 GB RAM), performa kueri tidak berubah secara biner/instan pada satu angka desimal selektivitas tunggal. Fluktuasi runtime Trino dan I/O MinIO menciptakan *bandwidth of transition* di mana perbedaan performa berada dalam batas noise floor (`0 ∈ CI 95%`). Protokol riset secara eksplisit menyertakan klausul `allow_uncertain_region: true` agar klaim ilmiah mencerminkan realitas fisik sistem secara jujur.
 3. **Penyusunan Peta Panduan Keputusan (Figure 10):**
    Menyajikan hasil riset dalam bentuk matriks keputusan terapan bagi praktisi rekayasa data.
 
 ---
 
-#### ⚙️ 2. Formulasi Domain & Batas Keputusan
+#### ⚙️ 3. Formulasi Domain & Batas Keputusan
 
 Tiga domain operasional didefinisikan secara formal sebagai berikut:
 
 | Domain / Zona | Kriteria Statistik | Status Performa | Implikasi Lakehouse |
 |:---|:---|:---|:---|
-| **Zona I: Baseline Preferred** | $\text{Median } \Delta > 0$ dan $0 \notin CI_{95\%}$ | 32 MiB signifikan lebih cepat ($p < 0.05$) | Penalti pembacaan data berlebih (*skipping penalty*) pada file 64 MiB nyata. |
-| **Zona II: Region of Uncertainty** | $0 \in CI_{95\%}$ | Perbedaan latensi berada dalam ambang ketidakpastian | Transisi dinamis; margin sempit ($\|\Delta\| < 20\text{ ms}$). Pemilihan ukuran file bersifat indifferent. |
-| **Zona III: 64 MiB Preferred vs Baseline** | $\text{Median } \Delta < 0$ pada selektivitas tinggi ($50\%$) | 64 MiB berbalik lebih cepat dari 32 MiB | Penghematan *split scheduling overhead* Trino mendominasi saat scan mendekati penuh. |
+| **Zona I: Baseline Preferred** | Median Δ > 0 dan `0 ∉ CI 95%` | 32 MiB signifikan lebih cepat ($p < 0.05$) | Penalti pembacaan data berlebih (*skipping penalty*) pada file 64 MiB nyata. |
+| **Zona II: Region of Uncertainty** | `0 ∈ CI 95%` | Perbedaan latensi berada dalam ambang ketidakpastian | Transisi dinamis; margin sempit (`|Δ| < 20 ms`). Pemilihan ukuran file bersifat indifferent. |
+| **Zona III: 64 MiB Preferred vs Baseline** | Median Δ < 0 pada selektivitas tinggi ($50\%$) | 64 MiB berbalik lebih cepat dari 32 MiB | Penghematan *split scheduling overhead* Trino mendominasi saat scan mendekati penuh. |
 
 ---
 

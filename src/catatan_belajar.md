@@ -1187,10 +1187,10 @@ Dalam pengukuran sistem komputer nyata, latensi eksekusi kueri Trino dipengaruhi
 ### B. Keunggulan Non-Parametric Percentile Bootstrap
 1. **Bebas Asumsi Distribusi Gaussian:** Data latensi kueri umumnya memiliki *heavy tail* (distribusi miring ke kanan). Metode parametrik (seperti Student's t-test) berasumsi data berdistribusi normal, yang sering kali tidak valid untuk latensi sistem.
 2. **Resampling Berulang ($B = 2.000$):** Dengan melakukan pencuplikan ulang secara acak sebanyak $2.000$ kali dengan pengembalian (*with replacement*), kita membangun distribusi empiris dari median data sampel.
-3. **Kriteria Signifikansi Menjauhi Nol ($0 \notin CI_{95\%}$):**
-   - Jika batas atas dan batas bawah selang kepercayaan sama-sama negatif (misal: $[-52.62, -37.24]$), kita yakin 95% bahwa ukuran $x$ **secara nyata lebih cepat** dari baseline 32 MiB.
-   - Jika batas atas dan batas bawah sama-sama positif (misal: $[5.43, 23.15]$), ukuran $x$ **secara nyata lebih lambat**.
-   - Jika selang memuat angka 0 (misal: $[-30.46, 10.29]$), perbedaan tersebut **belum dapat dibedakan dari nol secara statistik** pada $N=20$ repetisi (*region of uncertainty*).
+3. **Kriteria Signifikansi Menjauhi Nol (`0 ∉ CI 95%`):**
+   - Jika batas atas dan batas bawah selang kepercayaan sama-sama negatif (misal: `[-52.62, -37.24]`), kita yakin 95% bahwa ukuran $x$ **secara nyata lebih cepat** dari baseline 32 MiB.
+   - Jika batas atas dan batas bawah sama-sama positif (misal: `[5.43, 23.15]`), ukuran $x$ **secara nyata lebih lambat**.
+   - Jika selang memuat angka 0 (misal: `[-30.46, 10.29]`), perbedaan tersebut **belum dapat dibedakan dari nol secara statistik** pada $N=20$ repetisi (*region of uncertainty*).
 
 ---
 
@@ -1213,7 +1213,7 @@ Dalam pengukuran sistem komputer nyata, latensi eksekusi kueri Trino dipengaruhi
 ## 4. Temuan Empiris Utama Gate H16
 
 1. **Dominasi Absolut 8 MiB (100% Signifikan):** Seluruh 18 kondisi faktorial untuk varian 8 MiB terbukti lebih cepat secara signifikan dibanding 32 MiB ($p < 0.05$) dengan faktor percepatan mencapai **1.63x speedup**.
-2. **Validasi Empiris Penalti Ukuran Besar di Selektivitas Rendah:** Pada selektivitas $0.01\% - 0.1\%$, varian 64 MiB signifikan lebih lambat dari baseline 32 MiB ($CI_{95\%}$ berkisar antara $+5.43\text{ ms}$ hingga $+44.27\text{ ms}$). Hal ini membuktikan penalti I/O akibat pembacaan blok yang terlalu besar saat predikat kueri sangat selektif.
+2. **Validasi Empiris Penalti Ukuran Besar di Selektivitas Rendah:** Pada selektivitas $0.01\% - 0.1\%$, varian 64 MiB signifikan lebih lambat dari baseline 32 MiB (`CI 95%` berkisar antara $+5.43\text{ ms}$ hingga $+44.27\text{ ms}$). Hal ini membuktikan penalti I/O akibat pembacaan blok yang terlalu besar saat predikat kueri sangat selektif.
 3. **Region of Uncertainty pada Titik Crossover:** Pada selektivitas 50%, median 64 MiB memang berbalik lebih cepat ($-18.12\text{ ms}$ pada Q1 dan $-28.50\text{ ms}$ pada Q2), namun interval 95% Bootstrap CI menyentuh angka nol. Temuan ini menegaskan bahwa crossover tidak terjadi pada satu titik diskret kaku, melainkan membentuk suatu **zona transisi / frontier ketidakpastian (*crossover frontier*)** yang akan dikarakterisasi di H17.
 
 ---

@@ -284,8 +284,8 @@
 - [x] Buat skrip analisis frontier: `scripts/analyze_h17_crossover_frontier.py`.
 - [x] Terapkan aturan crossover beku (`configs/crossover.yaml`): sign change, replikasi $\ge 2/3$ QF, `allow_uncertain_region: true`.
 - [x] Karakterisasi 3 domain operasional komparasi 64 MiB vs 32 MiB:
-  - **Zona I (Baseline Preferred):** Selektivitas $0.01\% - 0.1\%$ ($CI_{95\%} > 0$, 32 MiB signifikan lebih cepat, 64 MiB menderita skipping penalty).
-  - **Zona II (Region of Uncertainty / Transition Band):** Selektivitas $1.0\% - 10.0\%$ ($0 \in CI_{95\%}$, margin sempit di sekitar garis nol).
+  - **Zona I (Baseline Preferred):** Selektivitas $0.01\% - 0.1\%$ (`CI 95% > 0`, 32 MiB signifikan lebih cepat, 64 MiB menderita skipping penalty).
+  - **Zona II (Region of Uncertainty / Transition Band):** Selektivitas $1.0\% - 10.0\%$ (`0 ∈ CI 95%`, margin sempit di sekitar garis nol).
   - **Zona III (Large-File Preferred vs Baseline):** Selektivitas $50\%$ pada Q1 dan Q2 (median $\Delta$ negatif hingga $-28.5\text{ ms}$).
 - [x] Hitung titik perpotongan crossover numerik ($s^*$):
   - Q1 (Predicate Scan): $s^* \approx 0.58\%$.
