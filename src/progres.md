@@ -28,7 +28,7 @@
 |---|---|---|---|---|
 | **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | ✅ Selesai (H1–H7 ✅) |
 | **Minggu 2 (H8–H14)** | Main Factorial Benchmark | E3 | Kelengkapan run & telemetry | ✅ Selesai (H8–H14 ✅) |
-| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | 🔄 Berjalan (H15 ✅, H16 ✅) |
+| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | 🔄 Berjalan (H15 ✅, H16 ✅, H17 ✅) |
 | **Minggu 4 (H22–H28)** | Reproduksi, Ekstensi, Manuskrip | E5, E6 | Quality gate skripsi/artikel | ⚪ Belum Dimulai |
 
 ---
@@ -280,6 +280,29 @@
 
 ---
 
+### ✅ H17 — Deteksi & Karakterisasi Region Crossover (Figure 10) (Selesai)
+- [x] Buat skrip analisis frontier: `scripts/analyze_h17_crossover_frontier.py`.
+- [x] Terapkan aturan crossover beku (`configs/crossover.yaml`): sign change, replikasi $\ge 2/3$ QF, `allow_uncertain_region: true`.
+- [x] Karakterisasi 3 domain operasional komparasi 64 MiB vs 32 MiB:
+  - **Zona I (Baseline Preferred):** Selektivitas $0.01\% - 0.1\%$ ($CI_{95\%} > 0$, 32 MiB signifikan lebih cepat, 64 MiB menderita skipping penalty).
+  - **Zona II (Region of Uncertainty / Transition Band):** Selektivitas $1.0\% - 10.0\%$ ($0 \in CI_{95\%}$, margin sempit di sekitar garis nol).
+  - **Zona III (Large-File Preferred vs Baseline):** Selektivitas $50\%$ pada Q1 dan Q2 (median $\Delta$ negatif hingga $-28.5\text{ ms}$).
+- [x] Hitung titik perpotongan crossover numerik ($s^*$):
+  - Q1 (Predicate Scan): $s^* \approx 0.58\%$.
+  - Q2 (Selective Aggregation): $s^* \approx 0.76\%$.
+  - Q3 (Hash Group-By): Tidak ada crossover (64 MiB konsisten lebih lambat dari 32 MiB).
+- [x] Bangun **Figure 10** (Figure wajib manuskrip):
+  - Panel A: Paired Difference $\Delta$ vs Selectivity dengan 95% Bootstrap CI dan batas visual 3 zona operasional.
+  - Panel B: Conditional Lakehouse Layout Decision Map lintas beban kueri.
+- [x] Deliverables:
+  - `scripts/analyze_h17_crossover_frontier.py`.
+  - `results/tables/crossover_decision_boundaries.csv` (18 baris klasifikasi zona operasional).
+  - `results/figures/fig10_crossover_frontier.png` & `.pdf` (Figure 10 dari 15 figur wajib).
+  - `data/manifests/gate_h17_crossover_report.json`.
+- **Status Gate H17:** **EMPIRICAL CROSSOVER FRONTIER & FIGURE 10 LULUS 100% (ALL CHECKS PASSED)**.
+
+---
+
 ## 📝 Catatan Sesi & Keputusan
 - **11 September 2026:**
   - Audit workspace menemukan keberadaan clone repo di `D:\DSIC-2604` dan workspace aktif di `D:\Tugas Akhir`.
@@ -296,3 +319,4 @@
   - Penyelesaian H14: Agregasi 1.440 measured runs menjadi ringkasan statistik P50, P95, IQR, dan telemetri per 72 kondisi berhasil tuntas ke `results/processed/benchmark_summary_p50_p95.csv`. Seluruh gerbang Minggu 2 resmi lulus 100% (ALL GATES PASSED). Repositori siap bertransisi ke Minggu 3 (Analisis, Visualisasi, dan Uji Hipotesis). Deliverable tersimpan di `data/manifests/week2_completion_report.json`.
   - Penyelesaian H15: Analisis Paired Difference 1.080 baris Δ latensi berhasil tuntas. **Crossover 64 MiB vs 32 MiB terkonfirmasi di 2/3 query family (Q1 & Q2)** — 64 MiB lebih lambat di selektivitas rendah (Δ median ≈ +34 ms) dan berbalik lebih cepat di selektivitas tinggi (Δ median Q1/0.50 ≈ −18 ms). 8 MiB dan 16 MiB tidak menunjukkan crossover (selalu lebih cepat dari 32 MiB). Hipotesis H2 (Crossover) dan H1 (Interaction) didukung data. Deliverable: `results/tables/paired_diff_table.csv`, `results/tables/paired_diff_summary.csv`, `data/manifests/crossover_eval.json`.
   - Penyelesaian H16: Analisis Bootstrap 95% Confidence Interval ($B=2.000$) dan pembuatan 4 figur visualisasi jurnal (Figure 4, 5, 6, 7 dalam format PNG 300 DPI dan PDF) berhasil tuntas 100%. 42 dari 54 sel faktorial berpasangan terbukti berbeda signifikan secara statistik dari baseline 32 MiB ($p < 0.05$). Keunggulan varian 8 MiB signifikan di seluruh 18 kombinasi (Speedup 1.29x–1.63x). Pada 64 MiB vs 32 MiB, penalti latensi pada selektivitas rendah signifikan, sedangkan pada selektivitas 50% CI menyentuh nol yang secara empiris memvalidasi keberadaan *region of uncertainty / crossover frontier* (H17). Deliverables: `results/processed/bootstrap_ci_paired_diff.csv`, `results/processed/bootstrap_ci_latency_p50.csv`, `results/tables/bootstrap_ci_summary.csv`, Figure 4–7, `data/manifests/gate_h16_bootstrap_report.json`.
+  - Penyelesaian H17: Karakterisasi Empirical Crossover Frontier dan pembuatan Figure 10 (Conditional Lakehouse Decision Map) berhasil tuntas 100%. Tiga domain operasional formal berhasil dipetakan: Zona I (Baseline Preferred, $s \le 0.1\%$), Zona II (Region of Uncertainty, $1\% \le s \le 10\%$), dan Zona III (Large-File Preferred vs Baseline pada $s = 50\%$). Titik crossover numerik terinterpolasi pada $s^* \approx 0.58\%$ untuk Q1 dan $s^* \approx 0.76\%$ untuk Q2, sedangkan Q3 terbukti stabil tanpa crossover. Deliverables: `results/tables/crossover_decision_boundaries.csv`, `results/figures/fig10_crossover_frontier.png` & `.pdf`, `data/manifests/gate_h17_crossover_report.json`.

@@ -1232,12 +1232,189 @@ Dalam pengukuran sistem komputer nyata, latensi eksekusi kueri Trino dipengaruhi
 | `fig7_q3_latency_vs_selectivity.png` / `.pdf` | Visualisasi | [`results/figures/fig7_q3_latency_vs_selectivity.png`](../results/figures/fig7_q3_latency_vs_selectivity.png) |
 | `gate_h16_bootstrap_report.json` | Manifest | [`data/manifests/gate_h16_bootstrap_report.json`](../data/manifests/gate_h16_bootstrap_report.json) |
 
-- **Status Gate H16:** **SELESAI 100% (ALL CHECKS PASSED) ✅**
+## 6. Ruang Tanya-Jawab & Klarifikasi Pengguna (Q&A Khusus H16)
+*(Belum ada pertanyaan yang diajukan untuk H16).*
 
 ---
 
-## 6. Ruang Tanya-Jawab & Klarifikasi Pengguna (Q&A Khusus H16)
-*(Belum ada pertanyaan yang diajukan untuk H16).*
+# 📍 HARI 17 (H17) — DETEKSI & KARAKTERISASI REGION CROSSOVER (FIGURE 10)
+
+## 1. Peta Navigasi & Konteks H17
+
+```text
+H15: Paired Difference Analysis & Crossover Detection ✅
+    │
+    ▼
+H16: Bootstrap 95% CI & Visualisasi Manuskrip (Figure 4–7) ✅
+    │
+    ▼
+H17: Deteksi & Karakterisasi Region Crossover (Empirical Frontier / Figure 10) 🎯 [HARI INI]
+    │
+    ▼
+H18: Mechanism Attribution (Eksperimen E4 — Physical Bytes vs Split Overhead)
+```
+
+---
+
+## 2. Analogi Sederhana: Memahami Konsep Crossover untuk Orang Awam
+
+Bayangkan Anda bekerja di perpustakaan dan diminta mencari informasi:
+* **Ukuran File Kecil (8 & 16 MiB):** Diibaratkan seperti kumpulan **buku saku tipis**.
+* **Ukuran File Sedang (32 MiB):** Diibaratkan seperti **buku teks standar** (ini menjadi acuan dasar / *baseline* pembanding kita).
+* **Ukuran File Besar (64 MiB):** Diibaratkan seperti **buku ensiklopedia tebal**.
+
+### Kasus A — Pencarian Sangat Spesifik (Selektivitas Rendah: 0.01% – 0.1% Data)
+> *"Tolong cari data posisi kapal tertentu pada tanggal 1 Januari jam 08:00 pagi saja!"*
+* Membuka buku ensiklopedia 64 MiB itu melelahkan karena bukunya tebal, berat diangkat, dan sebagian besar isinya tidak Anda butuhkan (**penalti membaca data berlebih / skipping penalty**).
+* Buku 32 MiB dan buku saku 8 MiB jauh lebih cepat karena sistem bisa langsung melompati (*skip*) bab-bab yang tidak perlu. Di kondisi ini, **32 MiB menang telak dibanding 64 MiB** (lebih cepat hingga $+36\text{ ms}$).
+
+### Kasus B — Pembacaan Menyeluruh (Selektivitas Tinggi: 50% Data)
+> *"Tolong hitung rata-rata kecepatan seluruh kapal di laut selama setengah tahun!"*
+* Di sini, hampir separuh seluruh data di perpustakaan harus dibaca.
+* Jika menggunakan banyak buku kecil, Anda harus bolak-balik membuka, menutup, dan menata puluhan buku di meja (**overhead koordinasi / split scheduling**).
+* Sebaliknya, cukup membuka 1–2 buku tebal (64 MiB), pencarian langsung tuntas! Di kondisi ini, **64 MiB berbalik mengalahkan 32 MiB** (lebih cepat hingga $-28.5\text{ ms}$).
+
+Peristiwa pembalikan ini — dari yang awalnya **lebih lambat** menjadi **lebih cepat** — disebut sebagai **Crossover**.
+
+---
+
+## 3. Apa Tujuan dari H17?
+
+Di hari sebelumnya (H15 dan H16), kita sudah membuktikan bahwa fenomena pembalikan (*crossover*) itu memang nyata. Di H17 kita menjawab tiga pertanyaan utama secara mendalam:
+
+1. **Di titik berapa persen data pembalikan itu persisnya terjadi?**  
+   Mencari angka matematis persilangan ($s^*$).
+2. **Apakah pembalikan itu terjadi secara kaku atau ada masa transisinya?**  
+   Di sistem komputer nyata, performa tidak berubah seperti saklar lampu yang langsung "klik". Ada rentang abu-abu di mana performanya seimbang dan perbedaannya tipis sekali. Kita menyebut rentang ini **Region of Uncertainty** (Zona Ketidakpastian/Transisi).
+3. **Membuat "Peta Panduan Arsitektur" (Figure 10):**  
+   Menyajikan hasil riset dalam bentuk diagram dan matriks keputusan agar para insinyur data (*data engineers*) tahu persis: *"Jika beban kerja saya sering menjalankan kueri tipe X dengan selektivitas Y, ukuran file berapa yang harus saya pilih?"*
+
+---
+
+## 4. Tiga Zona Operasional yang Ditemukan di H17
+
+Berdasarkan pengujian komparasi antara ukuran **64 MiB vs 32 MiB**, spektrum pencarian diklasifikasikan ke dalam 3 zona formal:
+
+| Zona Operasional | Rentang Selektivitas | Siapa yang Menang? | Mengapa Demikian? |
+|:---|:---:|:---:|:---|
+| **Zona I (Baseline Preferred)** | Sangat Rendah ($0.01\% - 0.1\%$) | **32 MiB Menang Mutlak** | Ukuran 64 MiB terlalu boros membaca data yang tidak diperlukan (penalti lambat signifikan $+16.85\text{ ms}$ s/d $+36.50\text{ ms}$). |
+| **Zona II (Region of Uncertainty)** | Menengah ($1\% - 10\%$) | **Seimbang / Transisi** | Perbedaan kecepatan sangat tipis ($\|\Delta\| < 20\text{ ms}$). Selang statistik 95% memotong angka nol, artinya sistem menganggap kedua ukuran ini setara secara operasional. |
+| **Zona III (Large-File Preferred)** | Tinggi ($50\%$) | **64 MiB Menang vs 32 MiB** | Saat separuh data dibaca, ukuran 64 MiB lebih unggul (hingga $28.5\text{ ms}$ lebih cepat) karena koordinasi antrean kueri Trino lebih ringkas (53 vs 62 splits). |
+
+### 📍 Di Mana Titik Balik Numeriknya ($s^*$)?
+* **Kueri Pencarian Baris / Lookup (Q1):** Titik temu terjadi saat kueri menyaring sekitar **$0.58\%$** data.
+* **Kueri Agregasi Kolom / AVG & MAX (Q2):** Titik temu terjadi saat kueri menyaring sekitar **$0.76\%$** data.
+* **Kueri Pengelompokan Kategori / Group-By (Q3):** **Tidak pernah terjadi crossover**. Varian 64 MiB konsisten lebih lambat dari 32 MiB karena beban memori Trino dalam mengelompokkan data (*hash group-by*) terlalu berat.
+
+---
+
+## 5. Bedah Mendalam Figure 10 (Figure Wajib Manuskrip)
+
+Figure 10 ([`results/figures/fig10_crossover_frontier.png`](../results/figures/fig10_crossover_frontier.png)) memadukan dua panel analitis:
+
+### Panel A: Paired Difference Δ dengan Shaded 95% Bootstrap CI
+* Sumbu horizontal (X) adalah persentase selektivitas kueri dalam skala logaritmik ($0.01\%$ hingga $50\%$).
+* Sumbu vertikal (Y) adalah selisih latensi $\Delta = \text{latency}(64\text{ MiB}) - \text{latency}(32\text{ MiB})$.
+* Tiga zona diarsir dengan warna latar yang jelas:
+  * **Merah Muda (Zona I):** Daerah di mana 32 MiB lebih cepat ($\Delta > 5\text{ ms}$).
+  * **Kuning Muda (Zona II):** Zona ketidakpastian di sekitar garis nol ($-15\text{ ms} \le \Delta \le 5\text{ ms}$).
+  * **Hijau Muda (Zona III):** Daerah di mana 64 MiB berbalik lebih cepat ($\Delta < -15\text{ ms}$).
+* Anotasi panah menandai titik persilangan awal pada $s^* \approx 0.58\%$ (Q1) dan $s^* \approx 0.76\%$ (Q2).
+
+### Panel B: Conditional Lakehouse Decision Map
+* Menyajikan peta matriks keputusan bagi perancang sistem lakehouse:
+  * **Ukuran 8 MiB (Pemenang Global):** Ditandai dengan bintang emas (★) karena konsisten paling cepat di seluruh kondisi berkat pemangkasan *row-group* yang sangat presisi.
+  * **Ukuran 64 MiB (Pemenang Selektivitas Tinggi):** Ditandai dengan petir (⚡) saat berhasil mengalahkan 32 MiB pada kueri pemindaian besar ($50\%$).
+  * **Ukuran 16 MiB (Penyangga Stabil):** Selalu lebih cepat dari 32 MiB tanpa pernah mengalami penalti kelambatan.
+
+---
+
+## 6. Apa Saja yang Kita Jalankan & Berkas yang Dihasilkan
+
+### Perintah yang Dieksekusi:
+```powershell
+.venv\Scripts\python.exe scripts/analyze_h17_crossover_frontier.py
+```
+
+### Berkas yang Dibuat & Diperbarui:
+| Berkas | Jenis | Fungsi & Penjelasan |
+|:---|:---:|:---|
+| [`scripts/analyze_h17_crossover_frontier.py`](../scripts/analyze_h17_crossover_frontier.py) | **Skrip Python** | Program otomatisasi yang menghitung klasifikasi 3 zona, menginterpolasi titik $s^*$, dan menggambar grafik Figure 10. |
+| [`results/tables/crossover_decision_boundaries.csv`](../results/tables/crossover_decision_boundaries.csv) | **Data CSV** | Tabel 18 baris berisi klasifikasi zona resmi untuk setiap kombinasi kueri dan selektivitas. |
+| [`results/figures/fig10_crossover_frontier.png`](../results/figures/fig10_crossover_frontier.png) | **Grafik PNG (300 DPI)** | Gambar visualisasi Figure 10 beresolusi tinggi untuk dokumen manuskrip dan artikel ilmiah. |
+| [`results/figures/fig10_crossover_frontier.pdf`](../results/figures/fig10_crossover_frontier.pdf) | **Grafik PDF (Vektor)** | Format vektor dari Figure 10 untuk pencetakan dokumen tesis / LaTeX tanpa penurunan resolusi. |
+| [`data/manifests/gate_h17_crossover_report.json`](../data/manifests/gate_h17_crossover_report.json) | **Manifest JSON** | Bukti sertifikat integritas bahwa seluruh tahapan Gate H17 lulus 100%. |
+| [`progres_minggu_1-4/minggu3/README.md`](../progres_minggu_1-4/minggu3/README.md) | **Dokumentasi Mingguan** | Laporan berkala mingguan yang diperbarui secara lengkap dan mendalam. |
+| [`src/progres.md`](../src/progres.md) | **Roadmap Proyek** | Status pelacak kemajuan riset diperbarui menjadi: `H15 ✅, H16 ✅, H17 ✅`. |
+
+---
+
+## 7. Glosarium Istilah-Istilah Penting (Arti & Tujuannya)
+
+Untuk memudahkan pembaca awam, berikut adalah kamus istilah teknis yang digunakan di H17:
+
+### 1. Crossover (Titik Balik / Pergeseran Peringkat)
+* **Artinya:** Kondisi di mana peringkat performa dua ukuran file berbalik arah (yang tadinya lambat berbalik jadi lebih cepat ketika beban kueri berubah).
+* **Tujuannya:** Membuktikan hipotesis ilmiah (**H2**) bahwa tidak ada satu ukuran file yang sempurna untuk semua kueri.
+
+### 2. Empirical Crossover Frontier ($s^*$)
+* **Artinya:** Titik persentase persis di mana pembalikan (*crossover*) itu mulai terjadi.
+* **Tujuannya:** Memberikan patokan angka matematis pasti bagi arsitek data ($0.58\%$ untuk Q1 dan $0.76\%$ untuk Q2).
+
+### 3. Region of Uncertainty (Zona Ketidakpastian / Transisi Abu-Abu)
+* **Artinya:** Wilayah di sekitar titik persilangan di mana selisih latensi sangat tipis dan selang statistik 95% memuat angka nol.
+* **Tujuannya:** Menjaga kejujuran sains dengan mengakui adanya fluktuasi alami komputer, bukan membuat klaim kaku yang palsu.
+
+### 4. Query Selectivity (Selektivitas Kueri)
+* **Artinya:** Persentase baris data yang lolos saringan kueri dari total seluruh data yang ada ($0.01\%$ kueri sangat sempit, $50\%$ kueri sangat luas).
+* **Tujuannya:** Menjadi variabel penentu utama untuk melihat respons ukuran file Parquet terhadap variasi beban kerja.
+
+### 5. Baseline (Titik Acuan Pembanding — 32 MiB)
+* **Artinya:** Ukuran file standar yang dijadikan patokan pembanding netral (seperti titik nol pada penggaris).
+* **Tujuannya:** Memudahkan komparasi yang seragam di seluruh analisis.
+
+### 6. Paired Difference ($\Delta$ / Delta Berpasangan)
+* **Artinya:** Selisih waktu eksekusi kueri $\Delta = \text{latency}(x) - \text{latency}(32\text{ MiB})$ yang dijalankan pada blok waktu yang identik.
+* **Tujuannya:** Menghilangkan gangguan (*noise*) latar belakang komputer seperti lonjakan CPU atau suhu host.
+
+### 7. Bootstrap 95% Confidence Interval
+* **Artinya:** Metode statistik di mana komputer mengacak dan menguji ulang data sebanyak $2.000$ kali untuk melihat rentang nilai sebenarnya dengan keyakinan 95%.
+* **Tujuannya:** Membuktikan bahwa keunggulan ukuran file bersifat nyata secara ilmiah ($p < 0.05$) dan bukan kebetulan semata.
+
+### 8. Row-Group Pruning / Skipping
+* **Artinya:** Kemampuan format Parquet untuk langsung melewati kumpulan data yang tidak dicari tanpa membacanya dari storage.
+* **Tujuannya:** Menjelaskan mengapa file 8 MiB menjadi juara umum pada selektivitas rendah.
+
+### 9. Split Scheduling Overhead
+* **Artinya:** Waktu dan sumber daya yang dihabiskan mesin Trino untuk membagi tugas dan mengoordinasikan antrean pembacaan file ke CPU.
+* **Tujuannya:** Menjelaskan mengapa file 64 MiB bisa berbalik mengungguli 32 MiB saat hampir seluruh data dipindai.
+
+### 10. Query Families (Q1, Q2, Q3)
+* **Artinya:** Tiga pola kueri SQL dunia nyata: Q1 (pencarian biasa), Q2 (perhitungan rata-rata/agregasi), Q3 (pengelompokan kategori).
+* **Tujuannya:** Memastikan hasil penelitian valid secara umum di berbagai jenis operasi database.
+
+### 11. Latensi P50 (Median) & P95 (Beban Terberat)
+* **Artinya:** $P_{50}$ mewakili kecepatan normal harian, sedangkan $P_{95}$ mewakili kecepatan pada saat beban sistem paling berat (tail latency).
+* **Tujuannya:** Memastikan sistem lakehouse tidak hanya cepat pada rata-rata, tetapi juga stabil saat beban puncak.
+
+### 12. Conditional Decision Map
+* **Artinya:** Diagram panduan terapan (**Panel B Figure 10**) yang memberi tahu pengguna ukuran file mana yang paling efisien untuk skenario tertentu.
+* **Tujuannya:** Memberikan panduan praktis siap pakai bagi industri rekayasa data.
+
+---
+
+## 8. Kesimpulan Praktis untuk Orang Awam (Takeaways Utama)
+
+1. **Gunakan 8 MiB untuk Efisiensi Maksimal:** Pada arsitektur mesin bersumber daya terbatas (4 CPU / 16 GB RAM), ukuran **8 MiB adalah pilihan terbaik universal** karena sangat efisien dalam membuang data yang tidak dicari.
+2. **Kapan Ukuran 64 MiB Lebih Baik?** Jika Anda tahu bahwa sistem Anda sebagian besar menjalankan kueri analitik skala besar (membaca lebih dari 50% data), ukuran 64 MiB lebih unggul dibanding 32 MiB karena meringankan antrean penjadwalan kueri Trino.
+3. **Pesan Ilmiah:** Tidak ada ukuran file yang "ajaib" untuk segala kondisi. Ukuran file yang optimal selalu **kondisional** bergantung pada jenis kueri dan seberapa banyak data yang ingin Anda ambil.
+
+---
+
+## 9. Ruang Tanya-Jawab & Klarifikasi Pengguna (Q&A Khusus H17)
+*(Belum ada pertanyaan yang diajukan untuk H17).*
+
+
 
 
 
