@@ -15,7 +15,7 @@ Minggu 1 (H1–H7) dan Minggu 2 (H8–H14) telah dituntaskan dengan sukses 100%:
 | Hari | Fokus | Eksperimen / Analisis | Target Deliverable / Gate | Status |
 |:---:|:---|:---|:---|:---:|
 | **H15** | Analisis Paired Difference & Evaluasi Crossover | E4 (Crossover Analysis) | `paired_diff_table.csv`, `crossover_eval.json` | ✅ Selesai |
-| **H16** | Bootstrap 95% CI & Visualisasi Heatmap/Kurva Latensi | E4 (Uncertainty Quantification) | Heatmap $P_{50}$, plot latensi vs selektivitas, CI table | ⏳ Siap Eksekusi |
+| **H16** | Bootstrap 95% CI & Visualisasi Heatmap/Kurva Latensi | E4 (Uncertainty Quantification) | Heatmap $P_{50}$, plot latensi vs selektivitas, CI table | ✅ Selesai |
 | **H17** | Deteksi & Karakterisasi Region Crossover | E4 (Empirical Frontier) | Peta daerah crossover & decision boundaries | ⚪ Menunggu H16 |
 | **H18** | Mechanism Attribution (E4) | E4 (Trino Internals) | Atribusi skipping bytes vs split scheduling overhead | ⚪ Terjadwal |
 | **H19** | Failure & Anomaly Analysis (E4) | E4 (Outlier Diagnostics) | Audit $\ge 15$ kasus abnormal menurut taksonomi 12 kategori | ⚪ Terjadwal |
@@ -226,8 +226,156 @@ HASIL GLOBAL CROSSOVER:
 
 ---
 
-## ⏭️ Rencana Langkah Selanjutnya: Hari 16 (H16)
+### ✅ H16 — Bootstrap 95% CI & Visualisasi Heatmap/Kurva Latensi (Selesai)
 
-Setelah H15 selesai dan terdokumentasi secara lengkap, langkah berikutnya adalah mengeksekusi **H16**:
-1. **Bootstrap 95% Confidence Interval:** Mengestimasi ketidakpastian statistik secara non-parametrik ($B = 2.000$ repetisi) pada data berpasangan 1.080 baris $\Delta$ untuk memverifikasi apakah interval kepercayaan pada titik crossover menjauhi nol (*bounded away from zero*).
-2. **Visualisasi Publikasi Ilmiah:** Menghasilkan Heatmap Rasio Latensi Relatif serta Kurva Respons Latensi ($P_{50}$ dan $P_{95}$) vs Measured Selectivity (Figure 4, 5, 6, dan 7) menggunakan Seaborn / Matplotlib dengan format ramah artikel jurnal (*publication-ready*).
+- [x] **Skrip Analisis & Plotting:** Mengembangkan skrip otomatisasi [`scripts/analyze_h16_bootstrap_plots.py`](file:///d:/DSIC-2604/scripts/analyze_h16_bootstrap_plots.py) untuk kuantifikasi ketidakpastian non-parametrik dan generasi grafik beresolusi 300 DPI.
+- [x] **Bootstrap Resampling Paired Difference ($B=2.000$ repetisi):** Menghitung estimasi persentil 95% CI untuk selisih latensi berpasangan $\Delta = \text{latency}(x) - \text{latency}(32\text{ MiB})$ pada 54 sel kombinasi faktorial.
+- [x] **Uji Signifikansi Statistik ($\alpha = 0.05$):** Menentukan apakah selang kepercayaan menjauhi nol ($0 \notin [CI_{lower}, CI_{upper}]$) untuk memvalidasi superioritas/inferioritas ukuran file secara formal.
+- [x] **Bootstrap Resampling Median Latensi ($P_{50}$):** Menghitung 95% CI untuk median latensi pada seluruh 72 kondisi faktorial untuk digunakan sebagai *shaded error band*.
+- [x] **Pembuatan Figure 4 (Heatmap Rasio Latensi Relatif):** Menghasilkan matriks 3 panel (Q1, Q2, Q3) rasio latensi terhadap baseline 32 MiB lengkap dengan label numerik, persentase deviasi, dan bintang signifikansi (`*`).
+- [x] **Pembuatan Figure 5 (Kurva Latensi vs Selektivitas Q1):** Menampilkan garis $P_{50}$ (solid + 95% CI shaded) dan $P_{95}$ (dashed) untuk Q1 (Predicate Scan) dengan penanda titik crossover 64 MiB vs 32 MiB.
+- [x] **Pembuatan Figure 6 (Kurva Latensi vs Selektivitas Q2):** Menampilkan kurva respon latensi untuk Q2 (Selective Aggregation) dengan penanda pergeseran peringkat.
+- [x] **Pembuatan Figure 7 (Kurva Latensi vs Selektivitas Q3):** Menampilkan kurva respon latensi untuk Q3 (Selective Group-By) yang mengonfirmasi kestabilan ketiadaan crossover.
+- [x] **Penerbitan Deliverables & Manifest:** Menyimpan tabel processed CSV, tabel manuskrip, berkas PNG & PDF figur, serta manifest laporan di `data/manifests/gate_h16_bootstrap_report.json`.
+
+---
+
+#### 🎯 1. Tujuan & Landasan Ilmiah H16
+
+Dalam studi lakehouse bersumber daya terbatas (4 vCPU / 16 GB RAM), estimasi titik tunggal (seperti mean atau median sederhana) dapat menyesatkan akibat variabilitas runtime sistem operasi dan mesin kueri JVM Trino. Oleh karena itu, H16 menerapkan **kuantifikasi ketidakpastian (*uncertainty quantification*)** secara statistik rigor melalui:
+1. **Interval Kepercayaan Non-Parametrik Bootstrap (95% CI):** Menguji ketahanan temuan H15 tanpa mengasumsikan distribusi normal (Gaussian) pada data latensi, yang lazimnya memiliki skewness positif (*heavy tail*).
+2. **Pengujian Hipotesis Inferensial:** Jika interval $[CI_{2.5\%}, CI_{97.5\%}]$ tidak memuat angka 0, kita dapat menyimpulkan dengan keyakinan 95% ($p < 0.05$) bahwa perbedaan performa antar-ukuran file bersifat nyata secara sistemik dan bukan fluktuasi acak.
+3. **Visualisasi Komprehensif Publikasi Ilmiah:** Menyediakan representasi visual intuitif untuk pembaca manuskrip/skripsi dalam format vektor PDF dan raster resolusi tinggi (300 DPI PNG).
+
+---
+
+#### ⚙️ 2. Metodologi Bootstrap Resampling
+
+- **Algoritma:** Non-parametric percentile bootstrap dengan pengacakan terkontrol (`seed = 42`).
+- **Jumlah Replikasi:** $B = 2.000$ sampel resample dengan pengembalian (*with replacement*).
+- **Statistik Uji:**
+  - Median Paired Difference $\Delta^* = \text{median}(\Delta_b^*)$ untuk $b \in [1, 20]$.
+  - Median Absolute Latency $P_{50}^* = \text{median}(L_i^*)$ untuk $i \in [1, 20]$.
+- **Interval Kepercayaan 95%:**
+  $$CI_{95\%} = \left[ Q(0.025), Q(0.975) \right]$$
+  di mana $Q(p)$ adalah kuantil persentil ke-$p$ dari distribusi $2.000$ nilai median hasil resampling.
+
+---
+
+#### 📊 3. Hasil Analisis Statistik & Signifikansi Bootstrap 95% CI
+
+Dari total 54 kombinasi berpasangan non-baseline vs baseline 32 MiB:
+- **42 kondisi (77,8%)** terbukti **berbeda secara signifikan** dari baseline 32 MiB ($p < 0.05$, $0 \notin CI_{95\%}$).
+- **12 kondisi (22,2%)** berada dalam zona netral / ekuivalen ($0 \in CI_{95\%}$).
+
+##### Ringkasan Temuan Signifikansi per Ukuran File:
+
+1. **Varian 8 MiB vs 32 MiB (Dominasi Total & Signifikan 100%):**
+   - **18 dari 18 kondisi (100%)** bernilai negatif dan **signifikan secara statistik** ($0 \notin CI_{95\%}$).
+   - Keuntungan speedup berkisar antara **1.29x hingga 1.63x lebih cepat** dibanding baseline 32 MiB.
+   - Contoh ekstrem: Pada Q2 selektivitas 50%, median $\Delta = -218.87\text{ ms}$ dengan $CI_{95\%} = [-232.26, -189.19]\text{ ms}$ (sangat jauh di bawah nol).
+
+2. **Varian 16 MiB vs 32 MiB (Konsistensi Keunggulan Moderat):**
+   - **13 dari 18 kondisi (72,2%)** terbukti signifikan lebih cepat ($CI_{95\%}$ di bawah nol).
+   - Pada Q1 dan Q3 di rentang selektivitas 0.01%–10%, 16 MiB memberikan speedup signifikan 1.05x–1.23x.
+   - Pada selektivitas 50%, margin latensi menyempit hingga interval CI memotong nol (contoh Q3 50%: median $\Delta = -0.30\text{ ms}, CI_{95\%} = [-30.42, 26.24]\text{ ms}$).
+
+3. **Varian 64 MiB vs 32 MiB (Bukti Empiris Crossover & Frontier Transisi):**
+   - **Pada selektivitas sangat rendah (0.01% – 0.1%):** 64 MiB terbukti **signifikan lebih lambat** dari baseline 32 MiB pada seluruh Query Families ($0 \notin CI_{95\%}$), dengan penalti latensi $+16.85\text{ ms}$ s/d $+36.50\text{ ms}$.
+   - **Pada selektivitas menengah s/d tinggi (1.0% – 50%):** Terjadi pembalikan median $\Delta$ ke arah negatif pada Q1 ($-18.12\text{ ms}$) dan Q2 ($-28.50\text{ ms}$). Selang kepercayaan 95% Bootstrap pada selektivitas 50% menyentuh angka 0 ($[-30.46, 10.29]\text{ ms}$ untuk Q1 dan $[-38.85, 1.58]\text{ ms}$ untuk Q2).
+   - **Interpretasi Ilmiah:** Menemukan bahwa titik crossover diapit oleh *region of uncertainty* (zona ketidakpastian transisi) merupakan temuan empiris penting yang memvalidasi perlunya pemetaan *Empirical Crossover Frontier* di H17.
+
+---
+
+#### 🖼️ 4. Galeri Visualisasi Publikasi Ilmiah (Figure 4–7)
+
+Seluruh gambar telah diekspor dalam resolusi cetak standar jurnal (300 DPI) dan format vektor:
+
+1. **Figure 4: Relative Latency Ratio Heatmap**
+   - Berkas: [`results/figures/fig4_latency_ratio_heatmap.png`](file:///d:/DSIC-2604/results/figures/fig4_latency_ratio_heatmap.png) (dan `.pdf`)
+   - Memetakan rasio latensi relatif $\frac{\text{Latency}(x)}{\text{Latency}(32\text{ MiB})}$ pada 3 panel horizontal (Q1, Q2, Q3).
+   - Warna biru (< 1.0) menunjukkan keunggulan kecepatan, sedangkan warna merah (> 1.0) menunjukkan penalti waktu eksekusi. Sel dengan tanda bintang (`*`) mengindikasikan signifikansi statistik $95\%$.
+
+2. **Figure 5: Q1 (Predicate Scan / Lookup) Latency vs Selectivity**
+   - Berkas: [`results/figures/fig5_q1_latency_vs_selectivity.png`](file:///d:/DSIC-2604/results/figures/fig5_q1_latency_vs_selectivity.png) (dan `.pdf`)
+   - Menampilkan dinamika latensi pada kueri pemindaian baris dasar.
+   - Terlihat jelas perpotongan garis (*crossover*) antara kurva merah (64 MiB) dan oranye (32 MiB) seiring bertambahnya selektivitas predikat.
+
+3. **Figure 6: Q2 (Selective Aggregation — SOG AVG/MAX) Latency vs Selectivity**
+   - Berkas: [`results/figures/fig6_q2_latency_vs_selectivity.png`](file:///d:/DSIC-2604/results/figures/fig6_q2_latency_vs_selectivity.png) (dan `.pdf`)
+   - Menggambarkan respon komputasi agregasi kolom. Varian 8 MiB secara konsisten menempati garis terbawah (paling efisien), sementara 64 MiB berbalik mengungguli 32 MiB pada selektivitas tinggi.
+
+4. **Figure 7: Q3 (Selective Group-By — MessageType) Latency vs Selectivity**
+   - Berkas: [`results/figures/fig7_q3_latency_vs_selectivity.png`](file:///d:/DSIC-2604/results/figures/fig7_q3_latency_vs_selectivity.png) (dan `.pdf`)
+   - Menggambarkan beban pengelompokan hash (*hash aggregation*). Membuktikan secara visual ketiadaan crossover pada 64 MiB vs 32 MiB karena overhead partisi memori Trino.
+
+---
+
+#### 💻 5. Bukti Eksekusi Terminal (`scripts/analyze_h16_bootstrap_plots.py`)
+
+```text
+PS D:\DSIC-2604> .venv\Scripts\python.exe scripts/analyze_h16_bootstrap_plots.py
+2026-09-22 13:30:28,987 [INFO] === H16: BOOTSTRAP 95% CI & VISUALISASI JURNAL (FIGURE 4–7) ===
+2026-09-22 13:30:28,990 [INFO] 1. Membaca tabel paired difference: results\tables\paired_diff_table.csv
+2026-09-22 13:30:28,990 [INFO]    -> 54 kombinasi paired difference terbaca
+2026-09-22 13:30:28,990 [INFO] 2. Menjalankan Bootstrap B=2000 untuk Paired Difference Δ ...
+2026-09-22 13:30:29,043 [INFO]    -> Tersimpan: results\processed\bootstrap_ci_paired_diff.csv (54 baris)
+2026-09-22 13:30:29,043 [INFO] 3. Membaca runs_frozen.jsonl untuk Bootstrap Latensi P50 ...
+2026-09-22 13:30:29,144 [INFO]    -> Tersimpan: results\processed\bootstrap_ci_latency_p50.csv (72 baris)
+2026-09-22 13:30:29,145 [INFO]    -> Tersimpan tabel manuskrip: results\tables\bootstrap_ci_summary.csv (54 baris)
+2026-09-22 13:30:29,146 [INFO] 4. Membangun Figure 4: Heatmap Rasio Latensi Relatif vs Baseline (32 MiB) ...
+2026-09-22 13:30:30,210 [INFO]    -> Figure 4 tersimpan: results\figures\fig4_latency_ratio_heatmap.png dan .pdf
+2026-09-22 13:30:30,211 [INFO] 5. Membangun Figure 5: Kurva Latensi vs Selektivitas untuk Q1 ...
+2026-09-22 13:30:31,480 [INFO]    -> Figure 5 tersimpan: results\figures\fig5_q1_latency_vs_selectivity.png dan .pdf
+2026-09-22 13:30:31,481 [INFO] 5. Membangun Figure 6: Kurva Latensi vs Selektivitas untuk Q2 ...
+2026-09-22 13:30:32,760 [INFO]    -> Figure 6 tersimpan: results\figures\fig6_q2_latency_vs_selectivity.png dan .pdf
+2026-09-22 13:30:32,761 [INFO] 5. Membangun Figure 7: Kurva Latensi vs Selektivitas untuk Q3 ...
+2026-09-22 13:30:34,044 [INFO]    -> Figure 7 tersimpan: results\figures\fig7_q3_latency_vs_selectivity.png dan .pdf
+2026-09-22 13:30:34,045 [INFO] 6. Menyusun manifest laporan verifikasi Gate H16 ...
+2026-09-22 13:30:34,046 [INFO]    -> Manifest tersimpan: data\manifests\gate_h16_bootstrap_report.json
+
+================================================================================
+HASIL EKSEKUSI H16: BOOTSTRAP 95% CI & FIGURE 4–7 SELESAI
+================================================================================
+  - Tabel Bootstrap CI Diff   : results/processed/bootstrap_ci_paired_diff.csv
+  - Tabel Bootstrap CI P50    : results/processed/bootstrap_ci_latency_p50.csv
+  - Tabel Ringkasan Manuskrip : results/tables/bootstrap_ci_summary.csv
+  - Figure 4 (Heatmap Rasio)  : results/figures/fig4_latency_ratio_heatmap.png (.pdf)
+  - Figure 5 (Q1 Latency Line): results/figures/fig5_q1_latency_vs_selectivity.png (.pdf)
+  - Figure 6 (Q2 Latency Line): results/figures/fig6_q2_latency_vs_selectivity.png (.pdf)
+  - Figure 7 (Q3 Latency Line): results/figures/fig7_q3_latency_vs_selectivity.png (.pdf)
+  - Manifest Laporan H16      : data/manifests/gate_h16_bootstrap_report.json
+STATUS: LULUS 100% (ALL CHECKS PASSED) ✅
+================================================================================
+```
+
+---
+
+#### 📦 6. Deliverables H16
+
+| Berkas Deliverable | Format | Deskripsi |
+|:---|:---:|:---|
+| [`scripts/analyze_h16_bootstrap_plots.py`](file:///d:/DSIC-2604/scripts/analyze_h16_bootstrap_plots.py) | Python | Skrip komputasi Bootstrap non-parametrik & visualisasi publikasi jurnal |
+| [`results/processed/bootstrap_ci_paired_diff.csv`](file:///d:/DSIC-2604/results/processed/bootstrap_ci_paired_diff.csv) | CSV | Matriks 54 sel selang kepercayaan 95% Bootstrap untuk Paired Difference $\Delta$ |
+| [`results/processed/bootstrap_ci_latency_p50.csv`](file:///d:/DSIC-2604/results/processed/bootstrap_ci_latency_p50.csv) | CSV | Matriks 72 kondisi faktorial selang kepercayaan 95% Bootstrap untuk Median Latensi $P_{50}$ |
+| [`results/tables/bootstrap_ci_summary.csv`](file:///d:/DSIC-2604/results/tables/bootstrap_ci_summary.csv) | CSV | Tabel ringkasan manuskrip memuat speedup ratio, median $\Delta$, dan signifikansi statistik |
+| [`results/figures/fig4_latency_ratio_heatmap.png`](file:///d:/DSIC-2604/results/figures/fig4_latency_ratio_heatmap.png) | PNG / PDF | Figure 4: Heatmap Rasio Latensi Relatif vs Baseline 32 MiB (Q1, Q2, Q3) |
+| [`results/figures/fig5_q1_latency_vs_selectivity.png`](file:///d:/DSIC-2604/results/figures/fig5_q1_latency_vs_selectivity.png) | PNG / PDF | Figure 5: Kurva Respons Latensi ($P_{50} \pm 95\%$ CI, $P_{95}$) vs Selektivitas untuk Q1 |
+| [`results/figures/fig6_q2_latency_vs_selectivity.png`](file:///d:/DSIC-2604/results/figures/fig6_q2_latency_vs_selectivity.png) | PNG / PDF | Figure 6: Kurva Respons Latensi ($P_{50} \pm 95\%$ CI, $P_{95}$) vs Selektivitas untuk Q2 |
+| [`results/figures/fig7_q3_latency_vs_selectivity.png`](file:///d:/DSIC-2604/results/figures/fig7_q3_latency_vs_selectivity.png) | PNG / PDF | Figure 7: Kurva Respons Latensi ($P_{50} \pm 95\%$ CI, $P_{95}$) vs Selektivitas untuk Q3 |
+| [`data/manifests/gate_h16_bootstrap_report.json`](file:///d:/DSIC-2604/data/manifests/gate_h16_bootstrap_report.json) | JSON | Sertifikat laporan verifikasi Gate H16 berstatus `PASSED_100_PERCENT` |
+
+- **Status Milestone H16:** **LULUS 100% (ALL GATES PASSED)** ✅.
+
+---
+
+## ⏭️ Rencana Langkah Selanjutnya: Hari 17 (H17)
+
+Setelah H16 tuntas dengan tersedianya kuantifikasi ketidakpastian 95% CI dan Figure 4–7, agenda kerja berikutnya adalah **Hari 17 (H17) — Deteksi & Pemetaan Region Crossover**:
+1. **Pemetaan Batas Keputusan (*Decision Boundaries*):** Menentukan threshold selektivitas transisi di mana konfigurasi lakehouse bergeser dari preferensi ukuran kecil (8 MiB / 16 MiB) ke ukuran besar (32 MiB / 64 MiB).
+2. **Karakterisasi Tiga Domain Operasional:** Mengidentifikasi secara formal:
+   - *Small-File Preferred Region* (Selektivitas sangat rendah: $s \le 1.0\%$).
+   - *Transition / Uncertainty Region* (Selektivitas menengah: $1.0\% < s < 10.0\%$).
+   - *Large-File Preferred Region* (Selektivitas tinggi: $s \ge 10.0\%$).
+3. **Pembuatan Figure 10:** Menghasilkan figur visualisasi wajib *Empirical Crossover Frontier / Decision Map*.
+

@@ -1,0 +1,54 @@
+{
+  "gate": "H16_BOOTSTRAP_CI_AND_FIGURES",
+  "timestamp_utc": "2026-09-22T06:30:34.045389+00:00",
+  "script": "scripts/analyze_h16_bootstrap_plots.py",
+  "parameters": {
+    "bootstrap_replications": 2000,
+    "confidence_level": 0.95,
+    "random_seed": 42,
+    "baseline_file_size_mib": 32,
+    "dpi": 300
+  },
+  "inputs": {
+    "paired_diff_table": "results\\tables\\paired_diff_table.csv",
+    "runs_frozen_jsonl": "results\\raw\\runs_frozen.jsonl",
+    "benchmark_summary_p50_p95": "results\\processed\\benchmark_summary_p50_p95.csv"
+  },
+  "outputs": {
+    "bootstrap_ci_paired_diff_csv": "results\\processed\\bootstrap_ci_paired_diff.csv",
+    "bootstrap_ci_latency_p50_csv": "results\\processed\\bootstrap_ci_latency_p50.csv",
+    "bootstrap_ci_summary_table_csv": "results\\tables\\bootstrap_ci_summary.csv",
+    "figure_4_png": "results\\figures\\fig4_latency_ratio_heatmap.png",
+    "figure_4_pdf": "results\\figures\\fig4_latency_ratio_heatmap.pdf",
+    "figure_5_png": "results\\figures\\fig5_q1_latency_vs_selectivity.png",
+    "figure_5_pdf": "results\\figures\\fig5_q1_latency_vs_selectivity.pdf",
+    "figure_6_png": "results\\figures\\fig6_q2_latency_vs_selectivity.png",
+    "figure_6_pdf": "results\\figures\\fig6_q2_latency_vs_selectivity.pdf",
+    "figure_7_png": "results\\figures\\fig7_q3_latency_vs_selectivity.png",
+    "figure_7_pdf": "results\\figures\\fig7_q3_latency_vs_selectivity.pdf"
+  },
+  "statistical_findings": {
+    "total_paired_diff_conditions": 54,
+    "statistically_significant_count": 42,
+    "statistically_insignificant_count": 12,
+    "crossover_ci_summary": {
+      "64mib_vs_32mib_q1_sel_0_50": {
+        "median_delta_ms": -18.1242,
+        "ci_95": [
+          -30.4587,
+          10.2864
+        ],
+        "significant": false
+      },
+      "64mib_vs_32mib_q2_sel_0_50": {
+        "median_delta_ms": -28.4991,
+        "ci_95": [
+          -38.8503,
+          1.5761
+        ],
+        "significant": false
+      }
+    }
+  },
+  "status": "PASSED_100_PERCENT"
+}

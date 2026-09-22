@@ -28,7 +28,7 @@
 |---|---|---|---|---|
 | **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | ✅ Selesai (H1–H7 ✅) |
 | **Minggu 2 (H8–H14)** | Main Factorial Benchmark | E3 | Kelengkapan run & telemetry | ✅ Selesai (H8–H14 ✅) |
-| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | 🔄 Berjalan (H15 ✅) |
+| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | 🔄 Berjalan (H15 ✅, H16 ✅) |
 | **Minggu 4 (H22–H28)** | Reproduksi, Ekstensi, Manuskrip | E5, E6 | Quality gate skripsi/artikel | ⚪ Belum Dimulai |
 
 ---
@@ -257,6 +257,29 @@
 
 ---
 
+### ✅ H16 — Bootstrap 95% CI & Visualisasi Heatmap/Kurva Latensi (Selesai)
+- [x] Buat skrip analisis & visualisasi: `scripts/analyze_h16_bootstrap_plots.py`.
+- [x] Kuantifikasi ketidakpastian non-parametrik (Bootstrap Resampling $B=2.000$, seed=42):
+  - Bootstrap 95% CI untuk Paired Difference ($\Delta$) per 54 sel faktorial (42/54 sel signifikan $p < 0.05$).
+  - Bootstrap 95% CI untuk Median Latensi ($P_{50}$) per 72 kondisi faktorial.
+- [x] Bangun 4 figur visualisasi publikasi ilmiah standar jurnal (DPI=300, PNG & PDF):
+  - **Figure 4:** Heatmap Rasio Latensi Relatif vs Baseline 32 MiB (Q1, Q2, Q3) dengan anotasi rasio dan signifikansi statistik (`*`).
+  - **Figure 5:** Kurva Latensi vs Measured Selectivity (log scale, $P_{50}$ solid + 95% CI shaded, $P_{95}$ dashed) untuk **Q1 (Predicate Scan)** beserta anotasi crossover point.
+  - **Figure 6:** Kurva Latensi vs Measured Selectivity untuk **Q2 (Selective Aggregation)** beserta anotasi crossover point.
+  - **Figure 7:** Kurva Latensi vs Measured Selectivity untuk **Q3 (Selective Group-By)** yang membuktikan stabilitas ketiadaan crossover.
+- [x] Deliverables:
+  - `results/processed/bootstrap_ci_paired_diff.csv` (54 baris data CI $\Delta$).
+  - `results/processed/bootstrap_ci_latency_p50.csv` (72 baris data CI $P_{50}$).
+  - `results/tables/bootstrap_ci_summary.csv` (54 baris tabel ringkasan manuskrip).
+  - `results/figures/fig4_latency_ratio_heatmap.png` & `.pdf`.
+  - `results/figures/fig5_q1_latency_vs_selectivity.png` & `.pdf`.
+  - `results/figures/fig6_q2_latency_vs_selectivity.png` & `.pdf`.
+  - `results/figures/fig7_q3_latency_vs_selectivity.png` & `.pdf`.
+  - `data/manifests/gate_h16_bootstrap_report.json`.
+- **Status Gate H16:** **BOOTSTRAP CI & VISUALIZATION FIGURES LULUS 100% (ALL CHECKS PASSED)**.
+
+---
+
 ## 📝 Catatan Sesi & Keputusan
 - **11 September 2026:**
   - Audit workspace menemukan keberadaan clone repo di `D:\DSIC-2604` dan workspace aktif di `D:\Tugas Akhir`.
@@ -272,3 +295,4 @@
   - Penyelesaian H13: Eksekusi Out-of-Grid Benchmark Q4 Entity Robustness berhasil tuntas (200 run, 0 failed, durasi 381,8 detik). Temuan empiris mengonfirmasi hipotesis H4 & RQ5: ketika file skipping tidak membantu, file 64 MiB mengungguli 8 MiB akibat lebih rendahnya overhead penjadwalan split (53 vs 76 splits). Deliverable tersimpan di `results/raw/q4_runs.jsonl` dan `data/manifests/q4_robustness_report.json`.
   - Penyelesaian H14: Agregasi 1.440 measured runs menjadi ringkasan statistik P50, P95, IQR, dan telemetri per 72 kondisi berhasil tuntas ke `results/processed/benchmark_summary_p50_p95.csv`. Seluruh gerbang Minggu 2 resmi lulus 100% (ALL GATES PASSED). Repositori siap bertransisi ke Minggu 3 (Analisis, Visualisasi, dan Uji Hipotesis). Deliverable tersimpan di `data/manifests/week2_completion_report.json`.
   - Penyelesaian H15: Analisis Paired Difference 1.080 baris Δ latensi berhasil tuntas. **Crossover 64 MiB vs 32 MiB terkonfirmasi di 2/3 query family (Q1 & Q2)** — 64 MiB lebih lambat di selektivitas rendah (Δ median ≈ +34 ms) dan berbalik lebih cepat di selektivitas tinggi (Δ median Q1/0.50 ≈ −18 ms). 8 MiB dan 16 MiB tidak menunjukkan crossover (selalu lebih cepat dari 32 MiB). Hipotesis H2 (Crossover) dan H1 (Interaction) didukung data. Deliverable: `results/tables/paired_diff_table.csv`, `results/tables/paired_diff_summary.csv`, `data/manifests/crossover_eval.json`.
+  - Penyelesaian H16: Analisis Bootstrap 95% Confidence Interval ($B=2.000$) dan pembuatan 4 figur visualisasi jurnal (Figure 4, 5, 6, 7 dalam format PNG 300 DPI dan PDF) berhasil tuntas 100%. 42 dari 54 sel faktorial berpasangan terbukti berbeda signifikan secara statistik dari baseline 32 MiB ($p < 0.05$). Keunggulan varian 8 MiB signifikan di seluruh 18 kombinasi (Speedup 1.29x–1.63x). Pada 64 MiB vs 32 MiB, penalti latensi pada selektivitas rendah signifikan, sedangkan pada selektivitas 50% CI menyentuh nol yang secara empiris memvalidasi keberadaan *region of uncertainty / crossover frontier* (H17). Deliverables: `results/processed/bootstrap_ci_paired_diff.csv`, `results/processed/bootstrap_ci_latency_p50.csv`, `results/tables/bootstrap_ci_summary.csv`, Figure 4–7, `data/manifests/gate_h16_bootstrap_report.json`.

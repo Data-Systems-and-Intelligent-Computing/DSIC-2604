@@ -1156,5 +1156,89 @@ H15 menjawab ini dengan metode **Paired Difference Analysis**:
 ## 6. Ruang Tanya-Jawab & Klarifikasi Pengguna (Q&A Khusus H15)
 *(Belum ada pertanyaan yang diajukan untuk H15).*
 
+---
+
+# 📍 HARI 16 (H16) — BOOTSTRAP 95% CONFIDENCE INTERVAL & VISUALISASI JURNAL (FIGURE 4–7)
+
+## 1. Peta Navigasi & Konteks H16
+
+```text
+Eksperimen E3 (Selesai di H9) ──> Raw Frozen Data v1 (H12) ──> Agregasi P50/P95 (H14)
+                                                                   │
+    ┌──────────────────────────────────────────────────────────────┘
+    ▼
+H15: Paired Difference Analysis & Crossover Detection ✅
+    │
+    ▼
+H16: Bootstrap 95% CI & Visualisasi Manuskrip (Figure 4–7) 🎯 [HARI INI]
+    │
+    ▼
+H17: Deteksi & Karakterisasi Region Crossover (Empirical Frontier)
+```
+
+---
+
+## 2. Mengapa Perlu Bootstrap Resampling dalam Publikasi Ilmiah?
+
+### A. Keterbatasan Estimasi Titik Tunggal (Point Estimates)
+Dalam pengukuran sistem komputer nyata, latensi eksekusi kueri Trino dipengaruhi oleh *system jitter*, garbage collection JVM, dan antrean I/O MinIO. Jika kita hanya melaporkan angka tunggal (misalnya: *"varian 64 MiB lebih cepat 18.12 ms dibanding 32 MiB pada selektivitas 50%"*), penguji tesis atau reviewer jurnal internasional akan mempertanyakan:
+> *"Apakah selisih 18 ms tersebut signifikan secara statistik, atau hanya kebetulan akibat variasi acak saat kueri dijalankan?"*
+
+### B. Keunggulan Non-Parametric Percentile Bootstrap
+1. **Bebas Asumsi Distribusi Gaussian:** Data latensi kueri umumnya memiliki *heavy tail* (distribusi miring ke kanan). Metode parametrik (seperti Student's t-test) berasumsi data berdistribusi normal, yang sering kali tidak valid untuk latensi sistem.
+2. **Resampling Berulang ($B = 2.000$):** Dengan melakukan pencuplikan ulang secara acak sebanyak $2.000$ kali dengan pengembalian (*with replacement*), kita membangun distribusi empiris dari median data sampel.
+3. **Kriteria Signifikansi Menjauhi Nol ($0 \notin CI_{95\%}$):**
+   - Jika batas atas dan batas bawah selang kepercayaan sama-sama negatif (misal: $[-52.62, -37.24]$), kita yakin 95% bahwa ukuran $x$ **secara nyata lebih cepat** dari baseline 32 MiB.
+   - Jika batas atas dan batas bawah sama-sama positif (misal: $[5.43, 23.15]$), ukuran $x$ **secara nyata lebih lambat**.
+   - Jika selang memuat angka 0 (misal: $[-30.46, 10.29]$), perbedaan tersebut **belum dapat dibedakan dari nol secara statistik** pada $N=20$ repetisi (*region of uncertainty*).
+
+---
+
+## 3. Anatomi Visualisasi Standar Manuskrip (Figure 4–7)
+
+### Figure 4 — Relative Latency Ratio Heatmap (`results/figures/fig4_latency_ratio_heatmap.png`)
+- **Tujuan:** Memberikan gambaran panoramik komparasi kecepatan (*speedup/slowdown*) di seluruh ruang parameter faktorial (4 ukuran file $\times$ 6 band selektivitas $\times$ 3 Query Families).
+- **Rasio Latensi Relatif:** $\text{Ratio} = \frac{\text{Latency}(x)}{\text{Latency}(32\text{ MiB})}$.
+  - Nilai $< 1.0$ (Warna Biru): Menandakan ukuran $x$ lebih cepat dari baseline 32 MiB.
+  - Nilai $> 1.0$ (Warna Merah): Menandakan ukuran $x$ lebih lambat dari baseline 32 MiB.
+  - Tanda bintang (`*`): Menunjukkan signifikansi statistik di mana $95\%$ Bootstrap CI menjauhi nol.
+
+### Figure 5, 6, 7 — Kurva Latensi vs Measured Selectivity
+- **Figure 5 (Q1: Predicate Scan):** Menunjukkan latensi pemindaian data langsung. Garis merah (64 MiB) tampak jelas berpotongan dengan garis oranye (32 MiB) di sekitar selektivitas 1% dan 50% (*Crossover point*).
+- **Figure 6 (Q2: Selective Aggregation):** Menguji komputasi agregasi numerik (AVG/MAX). Pola crossover 64 MiB vs 32 MiB terulang secara stabil, sementara varian 8 MiB mendominasi efisiensi di sepanjang kurva.
+- **Figure 7 (Q3: Selective Group-By):** Menunjukkan agregasi berbasis pengelompokan hash. Di sini, varian 64 MiB konsisten lebih lambat dari 32 MiB (tidak terjadi crossover) karena penalti distribusi memori agregasi Trino.
+
+---
+
+## 4. Temuan Empiris Utama Gate H16
+
+1. **Dominasi Absolut 8 MiB (100% Signifikan):** Seluruh 18 kondisi faktorial untuk varian 8 MiB terbukti lebih cepat secara signifikan dibanding 32 MiB ($p < 0.05$) dengan faktor percepatan mencapai **1.63x speedup**.
+2. **Validasi Empiris Penalti Ukuran Besar di Selektivitas Rendah:** Pada selektivitas $0.01\% - 0.1\%$, varian 64 MiB signifikan lebih lambat dari baseline 32 MiB ($CI_{95\%}$ berkisar antara $+5.43\text{ ms}$ hingga $+44.27\text{ ms}$). Hal ini membuktikan penalti I/O akibat pembacaan blok yang terlalu besar saat predikat kueri sangat selektif.
+3. **Region of Uncertainty pada Titik Crossover:** Pada selektivitas 50%, median 64 MiB memang berbalik lebih cepat ($-18.12\text{ ms}$ pada Q1 dan $-28.50\text{ ms}$ pada Q2), namun interval 95% Bootstrap CI menyentuh angka nol. Temuan ini menegaskan bahwa crossover tidak terjadi pada satu titik diskret kaku, melainkan membentuk suatu **zona transisi / frontier ketidakpastian (*crossover frontier*)** yang akan dikarakterisasi di H17.
+
+---
+
+## 5. Deliverables & Status Milestone H16
+
+| Deliverable | Tipe | Lokasi |
+|:---|:---:|:---|
+| `scripts/analyze_h16_bootstrap_plots.py` | Skrip | [`scripts/analyze_h16_bootstrap_plots.py`](../scripts/analyze_h16_bootstrap_plots.py) |
+| `bootstrap_ci_paired_diff.csv` | Data | [`results/processed/bootstrap_ci_paired_diff.csv`](../results/processed/bootstrap_ci_paired_diff.csv) |
+| `bootstrap_ci_latency_p50.csv` | Data | [`results/processed/bootstrap_ci_latency_p50.csv`](../results/processed/bootstrap_ci_latency_p50.csv) |
+| `bootstrap_ci_summary.csv` | Tabel | [`results/tables/bootstrap_ci_summary.csv`](../results/tables/bootstrap_ci_summary.csv) |
+| `fig4_latency_ratio_heatmap.png` / `.pdf` | Visualisasi | [`results/figures/fig4_latency_ratio_heatmap.png`](../results/figures/fig4_latency_ratio_heatmap.png) |
+| `fig5_q1_latency_vs_selectivity.png` / `.pdf` | Visualisasi | [`results/figures/fig5_q1_latency_vs_selectivity.png`](../results/figures/fig5_q1_latency_vs_selectivity.png) |
+| `fig6_q2_latency_vs_selectivity.png` / `.pdf` | Visualisasi | [`results/figures/fig6_q2_latency_vs_selectivity.png`](../results/figures/fig6_q2_latency_vs_selectivity.png) |
+| `fig7_q3_latency_vs_selectivity.png` / `.pdf` | Visualisasi | [`results/figures/fig7_q3_latency_vs_selectivity.png`](../results/figures/fig7_q3_latency_vs_selectivity.png) |
+| `gate_h16_bootstrap_report.json` | Manifest | [`data/manifests/gate_h16_bootstrap_report.json`](../data/manifests/gate_h16_bootstrap_report.json) |
+
+- **Status Gate H16:** **SELESAI 100% (ALL CHECKS PASSED) ✅**
+
+---
+
+## 6. Ruang Tanya-Jawab & Klarifikasi Pengguna (Q&A Khusus H16)
+*(Belum ada pertanyaan yang diajukan untuk H16).*
+
+
 
 
