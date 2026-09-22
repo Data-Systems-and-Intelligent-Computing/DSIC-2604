@@ -56,7 +56,7 @@
   - Rasio kompresi: `1,208x` (19 row groups)
   - Signifikansi grid H5: Kondisi 256 MiB menghasilkan < 8 file, menjadi dasar empiris perlunya varian fallback `8/16/32/64 MiB`.
 - [x] Deliverable audit tersimpan di `data/manifests/gate_g1_validation_report.json`.
-- [x] Catat hasil lengkap ke `rencana-eksperimen-bimbingan/minggu1/README.md`.
+- [x] Catat hasil lengkap ke `progres_minggu_1-4/minggu1/README.md`.
 - **Status Gate:** **Gate G1 LULUS 100%**.
 
 ---
