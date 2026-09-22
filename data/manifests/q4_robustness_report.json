@@ -1,0 +1,50 @@
+{
+  "milestone": "H13_Q4_ENTITY_ROBUSTNESS",
+  "benchmark_finished_at": "2026-09-22T02:53:49.692627+00:00",
+  "wall_time_seconds": 381.83,
+  "total_runs_planned": 200,
+  "total_runs_completed": 200,
+  "failed_runs": 0,
+  "mmsi_samples_evaluated": 50,
+  "file_sizes_evaluated": [
+    8,
+    16,
+    32,
+    64
+  ],
+  "raw_log_path": "results\\raw\\q4_runs.jsonl",
+  "summary_by_variant": {
+    "8mib": {
+      "file_size_mib": 8,
+      "total_runs": 50,
+      "median_latency_ms": 1456.74,
+      "mean_latency_ms": 2262.83,
+      "median_physical_input_bytes": 447064270.0,
+      "mean_completed_splits": 76
+    },
+    "16mib": {
+      "file_size_mib": 16,
+      "total_runs": 50,
+      "median_latency_ms": 1664.75,
+      "mean_latency_ms": 1936.75,
+      "median_physical_input_bytes": 445099962.0,
+      "mean_completed_splits": 69
+    },
+    "32mib": {
+      "file_size_mib": 32,
+      "total_runs": 50,
+      "median_latency_ms": 1666.51,
+      "mean_latency_ms": 1680.23,
+      "median_physical_input_bytes": 442395221.0,
+      "mean_completed_splits": 62
+    },
+    "64mib": {
+      "file_size_mib": 64,
+      "total_runs": 50,
+      "median_latency_ms": 1582.8,
+      "mean_latency_ms": 1619.73,
+      "median_physical_input_bytes": 436105935.0,
+      "mean_completed_splits": 53
+    }
+  }
+}

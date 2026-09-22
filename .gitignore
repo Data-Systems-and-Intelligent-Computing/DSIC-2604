@@ -26,10 +26,12 @@ results/raw/*
 !results/raw/.gitkeep
 results/processed/*
 !results/processed/.gitkeep
+!results/processed/*.csv
 results/figures/*
 !results/figures/.gitkeep
 results/tables/*
 !results/tables/.gitkeep
+!results/tables/*.csv
 
 # OS / editor
 .DS_Store

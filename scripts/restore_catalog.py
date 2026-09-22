@@ -110,15 +110,22 @@ def trino_execute(sql: str):
     resp.raise_for_status()
     data = resp.json()
 
-    # poll sampai query selesai
+    all_rows = []
+    if "data" in data and data["data"]:
+        all_rows.extend(data["data"])
+
+    # poll sampai query selesai dan kumpulkan semua batch data
     while "nextUri" in data:
         resp = requests.get(data["nextUri"], headers=headers, timeout=60)
         resp.raise_for_status()
         data = resp.json()
+        if "data" in data and data["data"]:
+            all_rows.extend(data["data"])
 
     if data.get("error"):
         raise RuntimeError(data["error"].get("message", str(data["error"])))
 
+    data["data"] = all_rows
     return data
 
 

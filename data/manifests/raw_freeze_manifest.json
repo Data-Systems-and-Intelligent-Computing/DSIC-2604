@@ -1,0 +1,12 @@
+{
+  "milestone": "H12_RAW_DATA_FREEZE",
+  "frozen_at_utc": "2026-09-22T02:26:34.719241+00:00",
+  "source_file": "results\\raw\\runs.jsonl",
+  "frozen_file": "results\\raw\\runs_frozen.jsonl",
+  "file_size_bytes": 1403827,
+  "line_count": 1584,
+  "expected_runs": 1584,
+  "sha256_checksum": "a868d202a03e2d0ff239b32bc4408f2cadf7c33f52adbcd5cf2d31469ae9cc6e",
+  "freeze_status": "FROZEN_AND_VERIFIED",
+  "next_step": "Minggu 3 (Analisis, Visualisasi, dan Uji Hipotesis)"
+}
