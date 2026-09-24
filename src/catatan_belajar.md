@@ -180,7 +180,78 @@ tests/test_source_contract.py::test_source_manifest_integrity PASSED     [100%]
 
 > *Bagian ini disediakan khusus untuk mencatat pertanyaan Anda mengenai Hari 1 (H1). Pertanyaan dan jawabannya akan langsung dibukukan di sini agar menjadi catatan belajar pribadi yang permanen.*
 
-*(Belum ada pertanyaan yang diajukan. Silakan ajukan pertanyaan Anda mengenai H1, dan penjelasan tambahannya akan ditambahkan ke bagian ini).*
+### ❓ Pertanyaan 1: Jelaskan dengan detail dan sederhana 5 Research Questions (RQ1–RQ5) dan mengapa tepat 5? Mengapa bukan 3, 4, atau 6?
+
+**Jawaban:**
+1. **Penjelasan Sederhana Kelima RQ:**
+   - **RQ1 (Deteksi Interaksi):** Menyelidiki apakah pengaruh ukuran file Parquet terhadap latensi kueri analitik bergantung pada selektivitas kueri. Sederhananya: apakah ukuran file yang paling cepat saat kueri menyaring sedikit data (0,1%) akan tetap menang saat kueri menyaring banyak data (50%)?
+   - **RQ2 (Pergeseran Pemenang / Crossover Region):** Menyelidiki apakah terjadi pembalikan peringkat efisiensi ukuran file sehingga membentuk titik temu (*crossover*) yang stabil antar-pengulangan dan variasi tipe kueri. Sederhananya: di titik selektivitas berapa file besar menyalip efisiensi file kecil?
+   - **RQ3 (Atribusi Mekanisme Internal Sistem):** Membedah apa yang sebenarnya terjadi di dalam mesin Trino: apakah perubahan latensi dapat dijelaskan oleh pertukaran timbal balik (*trade-off*) antara penghematan pembacaan data (*physical input bytes*) melawan biaya overhead pembagian tugas Trino (*splits & scheduling overhead*)?
+   - **RQ4 (Pertimbangan Sisi Tulis / Write & Maintenance Trade-off):** Mengukur berapa biaya komputasi (waktu pembuatan dan penggabungan/compaction) dari masing-masing ukuran file, dan apakah keunggulan di sisi baca (*read-side*) tetap menguntungkan jika biaya penulisan (*write-side*) ikut dihitung secara menyeluruh?
+   - **RQ5 (Uji Ketahanan Pola / Robustness):** Menguji apakah pola interaksi ukuran file dan selektivitas ini tetap konsisten jika susunan data diuji dengan skema kontrol acak deterministik.
+
+2. **Mengapa Tepat 5? (Rasionalitas Metodologis):**
+   Kelima RQ ini membentuk satu **siklus penalaran kausal yang utuh (*complete causal loop*)**:
+   $$\text{Eksistensi Pola (RQ1)} \longrightarrow \text{Karakteristik & Crossover (RQ2)} \longrightarrow \text{Eksplanasi Sistem (RQ3)} \longrightarrow \text{Konsekuensi Biaya Tulis (RQ4)} \longrightarrow \text{Ketahanan Pola (RQ5)}$$
+   - **Jika hanya 3 RQ (RQ1–RQ3):** Penelitian akan menjadi berat sebelah (*read-biased*). Di arsitektur data lakehouse nyata, kita tidak hanya membaca data melainkan juga menulis dan merawatnya. Mengabaikan biaya penulisan (RQ4) membuat rekomendasi arsitektur tidak realistis.
+   - **Jika hanya 4 RQ (RQ1–RQ4):** Kita kehilangan pembuktian generalisasi/ketahanan (*robustness check*), sehingga hasil riset rentan disanggah sebagai kebetulan akibat pola urutan data tanggal semata.
+   - **Jika 6 RQ atau lebih:** Ruang lingkup akan melanggar batas kebaruan (*novelty boundary*) yang telah dikunci di H1 (misal melebar ke ranah domain maritim, adu performa antar-software, atau optimasi hardware) yang mengaburkan kontribusi orisinal riset.
+
+---
+
+### ❓ Pertanyaan 2: Mengapa data harus dikompresi? Apa yang terjadi jika tidak dikompresi? Mengapa menggunakan Snappy dan apa alternatifnya?
+
+**Jawaban:**
+1. **Mengapa Harus Dikompresi?**
+   Parquet adalah format berbasis kolom (*columnar storage*). Dalam satu kolom, nilai data cenderung berulang dan bertipe sama sehingga sangat mudah dipadatkan. Kompresi bertujuan menghemat pemakaian storage dan mengurangi volume transfer I/O data dari storage MinIO ke memori Trino.
+2. **Apa yang Terjadi Jika Tidak Dikompresi?**
+   - **Ukuran File Membengkak:** Ukuran file fisik akan melonjak 2 hingga 4 kali lipat di MinIO.
+   - **I/O Bottleneck Parah:** Waktu eksekusi kueri akan didominasi oleh waktu tunggu transfer data mentah dari disk (*I/O bound*). Akibatnya, perbedaan efisiensi antar-ukuran file Parquet menjadi tertutup dan sulit diukur secara objektif.
+3. **Mengapa Memilih Snappy?**
+   Dalam sistem analitik big data, kompresi tidak bertujuan mencari ukuran file paling kecil, melainkan mencari **keseimbangan optimal antara penghematan ruang dan kecepatan dekompresi**:
+   - **Snappy (Google):** Didesain khusus untuk pemrosesan paralel kueri analitik dengan filosofi *speed over maximum compression*. Kecepatan dekompresinya sangat tinggi (mencapai ratusan MiB/s per inti CPU) dengan konsumsi siklus CPU yang sangat rendah.
+   - Menjadi **standar de facto** pada ekosistem Apache Parquet, Trino, Spark, dan Apache Iceberg.
+4. **Algoritma Sejenis Lainnya:**
+   - **Zstandard (zstd):** Menghasilkan kompresi jauh lebih padat daripada Snappy, tetapi memerlukan siklus CPU yang sedikit lebih tinggi.
+   - **GZIP:** Rasio kompresi sangat tinggi (file sangat kecil), tetapi proses dekompresinya lambat dan membebani CPU secara signifikan.
+   - **LZ4:** Karakteristik performa mirip Snappy, sangat fokus pada throughput dekompresi ultra-cepat.
+
+---
+
+### ❓ Pertanyaan 3: Pada variabel kontrol yang dibekukan, mengapa tabel tidak dipartisi (unpartitioned)? Apa yang terjadi jika dipartisi?
+
+**Jawaban:**
+1. **Mekanisme Partisi Folder (Hive Partitioning):**
+   Jika tabel dipartisi berdasarkan direktori (misal: `/year=2023/month=01/file.parquet`), mesin kueri akan membuang direktori yang tidak cocok (*partition directory pruning*) langsung di tingkat sistem berkas tanpa pernah membuka atau membaca metadata file Parquet.
+2. **Dampak Fatal Jika Dipartisi pada Penelitian Ini:**
+   - **Menimbulkan Variabel Pengganggu (*Confounding Variable*):** Inti riset ini adalah mengukur seberapa efektif metadata internal file Parquet (min/max statistik pada footer file dan *row group*) dalam memangkas pembacaan data (*file-level skipping*). Jika data dipartisi ke folder-folder, pemangkasan data akan didominasi oleh partisi folder sistem operasi, sehingga efek ukuran file Parquet yang ingin diteliti menjadi tertutup (*masked out*).
+   - **Masalah File Terlalu Kecil (*Small Files Problem*):** Dataset kanonik berukuran ~450 MiB. Jika dipecah ke dalam 93 partisi tanggal kalender lalu dipotong menjadi varian ukuran file, ukuran file aktual hanya akan mencapai ratusan kilobyte, merusak representasi varian target (8, 16, 32, dan 64 MiB).
+   - **Kesimpulan:** Tabel wajib dibuat *unpartitioned* agar mekanisme *data skipping* murni dievaluasi dari arsitektur file Parquet.
+
+---
+
+### ❓ Pertanyaan 4: Apa itu pytest dan bagaimana cara kerjanya?
+
+**Jawaban:**
+1. **Definisi:**  
+   `pytest` adalah kerangka kerja pengujian otomatis (*testing framework*) standar industri di ekosistem Python. Di H1, pytest digunakan untuk menjalankan **pengujian berbasis kontrak (*source contract testing*)** guna memverifikasi integritas data dan kelengkapan protokol sebelum benchmark dijalankan.
+2. **Cara Kerja pytest:**
+   - **Test Discovery:** pytest memindai pohon direktori secara otomatis untuk menemukan berkas pengujian yang berawalan `test_*.py` dan fungsi yang berawalan `def test_*()`.
+   - **Eksekusi Assertion:** Di dalam fungsi uji, logika kontraktual dievaluasi menggunakan pernyataan `assert kondisi, "pesan kegagalan"`.
+   - **Introspeksi & Alarm:** Jika kondisi bernilai `True`, pengujian ditandai **PASSED**. Jika `False`, pytest seketika menghentikan fungsi tersebut, mencatat **AssertionError**, dan membongkar nilai variabel aktual vs yang diharapkan ke layar konsol secara mendalam.
+   - **Pelaporan & Return Code:** pytest menghasilkan ringkasan eksekusi beserta exit code (0 untuk sukses 100%, non-nol jika ada kontrak yang gagal) yang berguna untuk mengunci gate tahapan riset.
+
+---
+
+### ❓ Pertanyaan 5: Apa itu SHA-256 Checksum dan apa fungsinya dalam penelitian ini?
+
+**Jawaban:**
+1. **Definisi:**  
+   SHA-256 (*Secure Hash Algorithm 256-bit*) adalah fungsi hash kriptografis satu arah standar NIST yang mengonversi berkas data ukuran berapa pun menjadi deretan kode heksadesimal unik sepanjang 64 karakter (256 bit). Bersifat deterministik dan memiliki efek domino (*avalanche effect*): **perubahan 1 bit atau 1 karakter saja di dalam file 450 MB akan mengubah total nilai hash secara acak**.
+2. **Fungsi Konkret dalam Penelitian Ini:**
+   - **Verifikasi Integritas Fisik Data:** Membuktikan bahwa file `Dataset_AIS_POS.parquet` yang diunduh dari Zenodo tidak korup, tidak terpotong (*incomplete download*), dan utuh sempurna (tepat 450.935.970 bytes).
+   - **Bukti Forensik Anti-Manipulasi (*Scientific Anti-Fraud*):** Membuktikan secara ilmiah kepada dosen penguji bahwa data yang dipakai adalah 100% data resmi kanonik dari jurnal publikasi Averty dkk. (2026), bukan data rekayasa peneliti.
+   - **Standar Keterulangan (*Reproducibility*):** Nilai hash yang dicatat permanen di `source_manifest.csv` (`88998c43f7e1...`) memungkinkan peneliti lain di masa depan untuk memvalidasi bahwa mereka menggunakan replika dataset yang persis identik byte demi byte.
 
 ---
 
