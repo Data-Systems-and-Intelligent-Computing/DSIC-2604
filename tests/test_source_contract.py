@@ -2,17 +2,18 @@
 Test Source Contract and H1 Deliverables (Gate G1 Pre-check)
 """
 
-import csv
-import os
-from pathlib import Path
-import sys
-import yaml
+import csv # fungsinya adalah untuk memparsing file CSV
+import os # fungsinya adalah untuk mengakses fungsionalitas dari sistem, seperti path file atau variabel lingkungan.
+from pathlib import Path # fungsinya adalah untuk mengakses fungsionalitas dari sistem, seperti path file atau variabel lingkungan.
+import sys # fungsinya adalah untuk mengakses fungsionalitas dari sistem, seperti path file atau variabel lingkungan.
+import yaml # fungsinya adalah untuk memparsing file YAML
 
 # Pastikan root proyek terdaftar di sys.path agar bisa dijalankan langsung
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+# import fungsi custom 
 from src.common import calculate_sha256, get_project_root
 
 
