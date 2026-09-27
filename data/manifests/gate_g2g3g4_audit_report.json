@@ -1,0 +1,98 @@
+{
+  "audit_date": "2026-09-20T05:33:06.751284+00:00",
+  "gates": {
+    "G2": {
+      "status": "PASSED",
+      "variants_found": 4,
+      "variants_expected": 4
+    },
+    "G3": {
+      "status": "PASSED",
+      "separation_results": [
+        {
+          "pair": "8vs16",
+          "smaller_median_mib": 7.928268909454346,
+          "larger_median_mib": 14.697114944458008,
+          "median_ratio": 1.853760904468302,
+          "iqr_overlap": false,
+          "range_overlap": true,
+          "separated": true
+        },
+        {
+          "pair": "16vs32",
+          "smaller_median_mib": 14.697114944458008,
+          "larger_median_mib": 28.278847694396973,
+          "median_ratio": 1.92410876564998,
+          "iqr_overlap": false,
+          "range_overlap": false,
+          "separated": true
+        },
+        {
+          "pair": "32vs64",
+          "smaller_median_mib": 28.278847694396973,
+          "larger_median_mib": 51.45464563369751,
+          "median_ratio": 1.8195453432104474,
+          "iqr_overlap": false,
+          "range_overlap": false,
+          "separated": true
+        }
+      ],
+      "feasibility": {
+        "file_count": 24,
+        "minimum_required": 8,
+        "preferred": 16,
+        "feasible": true,
+        "preferred_met": true
+      }
+    },
+    "G4": {
+      "status": "PASSED",
+      "row_group_control": {
+        "row_group_mib_median_by_variant": {
+          "8": 8.556187629699707,
+          "16": 8.77554702758789,
+          "32": 10.323787212371826,
+          "64": 10.50323486328125
+        },
+        "relative_spread": 0.22756013751066814,
+        "controlled": true
+      },
+      "id_chunk_preserved": true
+    }
+  },
+  "variant_summaries": {
+    "08mib": {
+      "file_count": 198,
+      "row_count": 57042687,
+      "file_size_mib_median": 7.928268909454346,
+      "file_size_mib_iqr": 1.095682144165039,
+      "row_group_mib_median": 8.556187629699707,
+      "total_size_mib": 1269.8964958190918
+    },
+    "16mib": {
+      "file_count": 93,
+      "row_count": 57042687,
+      "file_size_mib_median": 14.697114944458008,
+      "file_size_mib_iqr": 1.9372968673706055,
+      "row_group_mib_median": 8.77554702758789,
+      "total_size_mib": 1263.3481607437134
+    },
+    "32mib": {
+      "file_count": 45,
+      "row_count": 57042687,
+      "file_size_mib_median": 28.278847694396973,
+      "file_size_mib_iqr": 1.5252275466918945,
+      "row_group_mib_median": 10.323787212371826,
+      "total_size_mib": 1256.4336404800415
+    },
+    "64mib": {
+      "file_count": 24,
+      "row_count": 57042687,
+      "file_size_mib_median": 51.45464563369751,
+      "file_size_mib_iqr": 2.334892988204956,
+      "row_group_mib_median": 10.50323486328125,
+      "total_size_mib": 1239.985055923462
+    }
+  },
+  "overall": "PASSED"
+}

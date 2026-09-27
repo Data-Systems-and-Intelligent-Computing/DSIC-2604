@@ -1,0 +1,61 @@
+{
+  "gate": "H17_CROSSOVER_FRONTIER_DETECTION",
+  "timestamp_utc": "2026-09-22T08:11:40.144726+00:00",
+  "script": "scripts/analyze_h17_crossover_frontier.py",
+  "parameters": {
+    "baseline_file_size_mib": 32,
+    "comparison_file_size_mib": 64,
+    "confidence_level": 0.95,
+    "require_sign_change": true,
+    "require_replication_across_qf": true,
+    "allow_uncertain_region": true
+  },
+  "inputs": {
+    "bootstrap_ci_paired_diff_csv": "results\\processed\\bootstrap_ci_paired_diff.csv",
+    "benchmark_summary_p50_p95": "results\\processed\\benchmark_summary_p50_p95.csv"
+  },
+  "outputs": {
+    "crossover_decision_boundaries_csv": "results\\tables\\crossover_decision_boundaries.csv",
+    "figure_10_png": "results\\figures\\fig10_crossover_frontier.png",
+    "figure_10_pdf": "results\\figures\\fig10_crossover_frontier.pdf"
+  },
+  "empirical_findings": {
+    "crossover_detected_query_families": [
+      "Q1",
+      "Q2"
+    ],
+    "crossover_absent_query_families": [
+      "Q3"
+    ],
+    "interpolated_crossover_crossing_s_star_pct": {
+      "Q1": [
+        0.5797,
+        1.6767,
+        26.902
+      ],
+      "Q2": [
+        0.7576,
+        5.2205,
+        20.2538
+      ],
+      "Q3": []
+    },
+    "operational_zones_summary": {
+      "zone_I_baseline_preferred_bands": [
+        "0.01%",
+        "0.1%"
+      ],
+      "zone_II_uncertainty_transition_bands": [
+        "1.0%",
+        "5.0%",
+        "10.0%"
+      ],
+      "zone_III_64mib_preferred_bands": [
+        "50.0% (Q1, Q2)"
+      ]
+    },
+    "global_verdict": "CROSSOVER_FRONTIER_MAPPED_CONFIRMED",
+    "hypothesis_H2_status": "SUPPORTED_WITH_UNCERTAINTY_REGION"
+  },
+  "status": "PASSED_100_PERCENT"
+}

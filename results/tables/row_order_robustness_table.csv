@@ -1,0 +1,5 @@
+file_size_mib,ordered_median_latency_ms,ordered_median_physical_mib,ordered_pct_table_read,ordered_median_splits,ordered_speedup_vs_32mib,shuffled_q4_median_latency_ms,shuffled_q4_median_physical_mib,shuffled_q4_pct_table_read,shuffled_q4_median_splits,shuffled_q4_speedup_vs_32mib,ranking_ordered,ranking_shuffled
+8,96.78,14.67,3.26,29.5,1.498,1285.0,426.35,94.73,76.0,1.148,1,2
+16,123.38,14.79,3.29,29.0,1.175,1540.0,424.48,94.32,69.0,0.958,2,3
+32,144.96,21.85,4.85,30.0,1.0,1475.0,421.9,93.75,62.0,1.0,4,4
+64,162.58,23.15,5.14,31.0,0.892,1400.0,415.9,92.41,53.0,1.054,3,1

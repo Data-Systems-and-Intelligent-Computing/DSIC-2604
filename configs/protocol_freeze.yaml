@@ -52,8 +52,11 @@ frozen_controls:
   table_primary: "Dataset_AIS_POS.parquet"
   row_order_main: "Date-clustered / fixed order"
   row_group_target_mib: 32  # fallback 8 MiB jika tabel < 2 GiB / kondisi terbesar < 8 file
+  # ↳ H5 DECISION: Fallback grid aktif. Nilai operasional = 8 MiB (lihat configs/layout.yaml → grid_decision)
   partitioning: "unpartitioned"
   compression: "snappy"
   query_engine: "Trino"
   concurrency: 1  # single query stream
   baseline_file_size_mib: 128  # fallback 32 MiB
+  # ↳ H5 DECISION: Fallback grid aktif. Nilai operasional = 32 MiB (lihat configs/layout.yaml → grid_decision)
+

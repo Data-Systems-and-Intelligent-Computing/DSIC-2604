@@ -1,0 +1,79 @@
+{
+  "calibration_date": "2026-09-16T08:23:45.029746+00:00",
+  "baseline_table": "iceberg.dsic2604.ais_pos_32",
+  "dry_run": false,
+  "anchor_start": "2023-07-07 00:00:00",
+  "total_rows": 19014229,
+  "tolerance": 0.2,
+  "gates": {
+    "G5": {
+      "status": "PASSED"
+    },
+    "G6": {
+      "status": "PASSED"
+    }
+  },
+  "bands": [
+    {
+      "query_id": "S1",
+      "target": 0.001,
+      "measured": 0.0008931732125451945,
+      "relative_error": 0.10682678745480553,
+      "accepted": true,
+      "start_ts": "2023-07-07 00:00:00",
+      "end_ts": "2023-07-07 01:55:55",
+      "matched_rows": 16983
+    },
+    {
+      "query_id": "S2",
+      "target": 0.01,
+      "measured": 0.008986638374871786,
+      "relative_error": 0.10133616251282139,
+      "accepted": true,
+      "start_ts": "2023-07-07 00:00:00",
+      "end_ts": "2023-07-07 19:19:12",
+      "matched_rows": 170874
+    },
+    {
+      "query_id": "S3",
+      "target": 0.05,
+      "measured": 0.04552111999913328,
+      "relative_error": 0.08957760001733442,
+      "accepted": true,
+      "start_ts": "2023-07-07 00:00:00",
+      "end_ts": "2023-07-11 00:36:00",
+      "matched_rows": 865549
+    },
+    {
+      "query_id": "S4",
+      "target": 0.2,
+      "measured": 0.17543430238480875,
+      "relative_error": 0.12282848807595628,
+      "accepted": true,
+      "start_ts": "2023-07-07 00:00:00",
+      "end_ts": "2023-07-23 02:24:00",
+      "matched_rows": 3335748
+    },
+    {
+      "query_id": "S5",
+      "target": 0.5,
+      "measured": 0.45134414863731787,
+      "relative_error": 0.09731170272536427,
+      "accepted": true,
+      "start_ts": "2023-07-07 00:00:00",
+      "end_ts": "2023-08-16 06:00:00",
+      "matched_rows": 8581961
+    },
+    {
+      "query_id": "S6",
+      "target": 0.9,
+      "measured": 0.7609628557644909,
+      "relative_error": 0.15448571581723242,
+      "accepted": true,
+      "start_ts": "2023-07-07 00:00:00",
+      "end_ts": "2023-09-12 04:48:00",
+      "matched_rows": 14469122
+    }
+  ],
+  "overall": "PASSED"
+}

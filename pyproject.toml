@@ -22,3 +22,6 @@ dev = ["pytest>=8.2", "ruff>=0.5"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+markers = [
+  "integration: marks tests requiring running lakehouse (deselect with '-m \"not integration\"')",
+]

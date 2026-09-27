@@ -1,0 +1,29 @@
+{
+  "gate": "H10_TELEMETRY_AND_RAW_LOG_INTEGRITY",
+  "gate_passed": true,
+  "raw_log_path": "D:\\DSIC-2604\\results\\raw\\runs.jsonl",
+  "summary": {
+    "total_runs": 1584,
+    "warmup_runs": 144,
+    "measured_runs": 1440,
+    "unique_conditions": 72,
+    "failed_runs": 0,
+    "missing_telemetry_runs": 0,
+    "metric_sanity_anomalies": 0,
+    "inconsistent_row_counts": 0
+  },
+  "checks": {
+    "total_runs_check": true,
+    "condition_distribution_check": true,
+    "execution_status_check": true,
+    "telemetry_completeness_check": true,
+    "metric_sanity_check": true,
+    "row_count_consistency_check": true
+  },
+  "details": {
+    "imbalanced_conditions": [],
+    "runs_with_missing_telemetry": [],
+    "invalid_metrics": [],
+    "inconsistent_row_counts": {}
+  }
+}

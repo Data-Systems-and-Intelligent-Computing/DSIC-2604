@@ -1,0 +1,5 @@
+file_size_mib,write_time_sec,write_throughput_mib_s,generated_file_count,storage_footprint_mib,extra_write_sec_vs_32mib,median_query_latency_ms,query_speedup_vs_32mib,query_latency_improvement_pct,write_roi_index,rq4_verdict
+8,39.95,11.27,198,1269.9,12.51,96.78,1.4978,33.24,1.0288,WRITE_COST_JUSTIFIED
+16,26.37,17.07,93,1263.35,-1.07,123.38,1.1749,14.88,1.2226,ACCEPTABLE
+32,27.44,16.4,45,1256.43,0.0,144.96,1.0,-0.0,1.0,WRITE_COST_NEUTRAL
+64,22.81,19.73,24,1239.99,-4.63,162.58,0.8916,-12.16,1.0726,LARGE_FILE_CHEAPER_WRITE

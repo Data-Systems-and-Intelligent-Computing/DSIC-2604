@@ -1,0 +1,12 @@
+================================================================================
+HASIL EKSEKUSI H18: ATRIBUSI MEKANISME & FIGURE 8–9 SELESAI
+================================================================================
+  - Tabel Atribusi Mekanisme : results\tables\mechanism_attribution_table.csv
+  - Tabel Korelasi Statistik : results\tables\mechanism_correlations.csv
+  - Figure 8 (Bytes vs Sel)  : results\figures\fig8_physical_input_bytes_vs_selectivity.png (.pdf)
+  - Figure 9 (Splits vs Sel) : results\figures\fig9_completed_splits_vs_selectivity.png (.pdf)
+  - Manifest Verifikasi H18  : data\manifests\gate_h18_mechanism_report.json
+STATUS: LULUS 100% (ALL CHECKS PASSED) - HIPOTESIS H4 TERBUKTI KUAT ✅
+================================================================================
+
+PS D:\DSIC-2604> 

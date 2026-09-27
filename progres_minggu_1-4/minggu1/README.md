@@ -1,4 +1,4 @@
-﻿# Catatan Minggu 1
+# Catatan Minggu 1
 
 
 
@@ -299,38 +299,88 @@ protokol dibekukan.
   - **Status Gate G3 (Kelayakan Grid):** **PASSED (100%)**.
 
 **H6 — Generate seluruh variant dan audit**
+- tulis 4 variant dari canonical snapshot yang sama (`ais_pos_08`, `ais_pos_16`, `ais_pos_32`, `ais_pos_64`); ✅
+- audit realized file size, separasi IQR antar-kondisi, row-group tetap; ✅
+- uji semantic equivalence Q1–Q3 lintas variant; ✅
+- catat biaya write ke `data/manifests/write_cost_manifest.csv`. ✅
+- Deliverable: layout manifest lengkap. Gate: **G2, G3, G4**. ✅
 
-- tulis tiga variant sisanya dari canonical snapshot yang sama;
-
-- audit realized file size, separasi IQR antar-kondisi, row-group tetap;
-
-- uji semantic equivalence Q1–Q3 lintas variant;
-
-- catat biaya write ke `data/manifests/write_cost_manifest.csv`.
-
-- Deliverable: layout manifest lengkap. Gate: **G2, G3, G4**.
-
-
+  **📄 Hasil & Bukti Uji:**
+  - **Realisasi Grid Layout:**
+    - `08mib`: 66 file, median = 7.93 MiB (target 8 MiB), rg_median = 8.56 MiB, rows = 19.014.229
+    - `16mib`: 31 file, median = 14.70 MiB (target 16 MiB), rg_median = 8.78 MiB, rows = 19.014.229
+    - `32mib`: 15 file, median = 28.28 MiB (target 32 MiB), rg_median = 10.32 MiB, rows = 19.014.229
+    - `64mib`: 8 file, median = 51.45 MiB (target 64 MiB), rg_median = 10.50 MiB, rows = 19.014.229
+  - **Audit Gate G2 (Layout Completeness):** PASSED (4/4 varian terbuat lengkap).
+  - **Audit Gate G3 (IQR Separation & Feasibility):** PASSED (rasio median antar kondisi: 1.85x, 1.92x, 1.82x > 1.5x; separasi IQR valid; varian terbesar 8 file ≥ 8).
+  - **Audit Gate G4 (Row-group Control):** PASSED (spread relatif row-group = 0.2276 ≤ toleransi 0.25).
+  - **Audit Semantic Equivalence (Q1, Q2, Q3 via Trino):**
+    - Q1 (row scan count): 1.576.090 baris (100% identik di 4 varian).
+    - Q2 (avg & max SOG): avg = 3.139318, max = 101.0 (100% identik).
+    - Q3 (group-by MessageType): 6 grup identik sempurna di 4 varian.
+    - Unit test `tests/test_semantic_equivalence.py`: 6 passed in 5.61s (100% lulus).
+  - **Berkas Bukti Deliverable:**
+    - `data/manifests/layout_manifest.csv`
+    - `data/manifests/write_cost_manifest.csv`
+    - `data/manifests/gate_g2g3g4_audit_report.json`
+    - `data/manifests/gate_equivalence_report.json`
+  - **Status Gate G2, G3, G4:** **PASSED (100%)**.
 
 **H7 — Kalibrasi selectivity dan pilot protokol**
+- kalibrasi boundary `Date` untuk 6 band, hitung measured selectivity, bekukan; ✅
+  - **Hasil Kalibrasi (Baseline `ais_pos_32`):**
+    - S1 (target 0.1%): measured = 0.0893% (16.983 baris), rel_err = 10.7% [PASSED]
+    - S2 (target 1.0%): measured = 0.8987% (170.874 baris), rel_err = 10.1% [PASSED]
+    - S3 (target 5.0%): measured = 4.5521% (865.549 baris), rel_err = 9.0% [PASSED]
+    - S4 (target 20.0%): measured = 17.5434% (3.335.748 baris), rel_err = 12.3% [PASSED]
+    - S5 (target 50.0%): measured = 45.1344% (8.581.961 baris), rel_err = 9.7% [PASSED]
+    - S6 (target 90.0%): measured = 76.0963% (14.469.122 baris), rel_err = 15.4% [PASSED]
+  - **Gate G5 (All bands within 20% relative error):** PASSED.
+  - **Gate G6 (Monotonically ordered):** PASSED.
+  - **Berkas Bukti Deliverable:** `data/manifests/selectivity_manifest.csv`, `data/manifests/gate_g5g6_selectivity_report.json`.
+- bekukan literal Q1–Q3 di `configs/queries.yaml` dan sampel MMSI untuk Q4 di `data/manifests/q4_mmsi_sample.csv`; ✅
+  - Q1 (Predicate Scan Count): `SELECT COUNT(*) ... WHERE Date BETWEEN ...`
+  - Q2 (Selective Aggregate): `SELECT AVG(SpeedOverGround), MAX(SpeedOverGround) ... WHERE Date BETWEEN ...`
+  - Q3 (Selective Group By): `SELECT MessageType, COUNT(*), AVG(SpeedOverGround) ... WHERE Date BETWEEN ... GROUP BY MessageType`
+  - Q4 (Entity Robustness): `SELECT * ... WHERE Mmsi = {mmsi} ORDER BY Date`
+- bekukan crossover criterion di `configs/crossover.yaml` (baseline = 32 MiB, paired_statistic = median_difference, confidence_level = 0.95, require_sign_change = true); ✅
+- pilot: warm-up pada baseline 32 MiB, protokol cache, randomisasi blok (seed = 42); ✅
+- **ukur durasi satu pass penuh** dan bandingkan dengan anggaran H9–H11. ✅
+- Deliverable: selectivity manifest + estimasi durasi. Gate: **G5, G6, G8, G9**. ✅
 
-- kalibrasi boundary `Date` untuk 6 band, hitung measured selectivity, bekukan;
-
-- bekukan literal Q1–Q3 dan sampel MMSI untuk Q4;
-
-- pilot: warm-up, protokol cache, randomisasi blok;
-
-- **ukur durasi satu pass penuh** dan bandingkan dengan anggaran H9–H11.
-
-- Deliverable: selectivity manifest + estimasi durasi. Gate: **G5, G6, G8, G9**.
-
-
+  **📄 Hasil Pilot Benchmark:**
+  - **Protokol Pilot:**
+    - Phase 1 (Warm-up): 18 query pada baseline 32 MiB (Q1–Q3 × 6 band selectivity).
+    - Phase 2 (Measured pass): 72 query (Q1–Q3 × 6 band × 4 varian file size), block-randomized.
+    - Phase 3 (Baseline stability): 10 repetisi Q1 sel=0.01 pada baseline 32 MiB.
+  - **Ringkasan Latency per Varian (Phase 2):**
+    - `08mib`: n=18, mean = 313.05 ms, stdev = 169.95 ms, range = [137.24, 691.03] ms
+    - `16mib`: n=18, mean = 450.65 ms, stdev = 292.67 ms, range = [205.11, 1160.80] ms
+    - `32mib`: n=18, mean = 490.90 ms, stdev = 288.96 ms, range = [232.81, 1220.81] ms
+    - `64mib`: n=18, mean = 517.38 ms, stdev = 294.13 ms, range = [258.39, 1251.74] ms
+  - **Gate G6 (Observability / Telemetry):** PASSED — 72/72 run memiliki telemetry lengkap (latency, physical_input_bytes, processed_input_rows, completed_splits, cpu_ms, peak_memory_bytes). Tidak ada missing field.
+  - **Gate G8 (Baseline Stability):** PASSED — 10 repetisi baseline (32 MiB, Q1, sel=0.01):
+    - Mean = 271.28 ms, latencies = [275.9, 264.3, 271.9, 270.3, 256.7, 283.9, 306.4, 249.8, 265.6, 267.9] ms.
+    - **Coefficient of Variation (CV):** **5.74%** (ambang batas maksimum: 25.0%).
+  - **Gate G9 (Claim Freeze):** PASSED — crossover criterion, primary metrics, dan query templates telah dibekukan sebelum melihat data.
+  - **Estimasi Durasi Main Benchmark:**
+    - Pilot wall time: 33.78 detik untuk 72 query.
+    - Rata-rata latency per query: 443.0 ms.
+    - Main benchmark: 72 kondisi × (2 warm-up + 20 measured) = 1.584 eksekusi.
+    - **Estimasi durasi main benchmark: ~0.19 jam (~11 menit).**
+  - **Catatan Teknis:** Field `completedSplits` pada Trino REST API v476 telah diganti menjadi `completedDrivers`. Fix diterapkan di `src/collect_trino_stats.py` agar fallback ke nama field baru.
+  - **Berkas Bukti Deliverable:**
+    - `data/manifests/gate_g8_g9_pilot_report.json`
+    - `configs/queries.yaml` (Q1–Q4 template dibekukan)
+    - `configs/crossover.yaml` (crossover criterion dibekukan)
+    - `data/manifests/q4_mmsi_sample.csv` (sampel MMSI untuk Q4)
+  - **Status Gate G5, G6, G8, G9:** **PASSED (100%)**.
 
 > Main benchmark hanya dimulai jika G1–G9 lulus. Jika salah satu gagal,
 
 > pakai hari buffer H13 sebelum mengorbankan repetisi.
 
-
+**✅ SEMUA GATE G1–G9 LULUS — Minggu 1 selesai, siap masuk Minggu 2 (H8–H14: Main Factorial Benchmark).**
 
 ---
 

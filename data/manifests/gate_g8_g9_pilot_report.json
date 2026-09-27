@@ -1,0 +1,77 @@
+{
+  "gate": "G5_G6_G8_G9",
+  "audit_date": "2026-09-20T05:27:07.301745+00:00",
+  "pilot_wall_time_seconds": 33.78,
+  "pilot_queries_executed": 72,
+  "avg_query_duration_ms": 443.0,
+  "estimated_main_benchmark_hours": 0.19,
+  "estimated_main_runs": 1584,
+  "gates": {
+    "G5": {
+      "status": "PASSED",
+      "note": "Selectivity calibration verified in prior step (gate_g5g6_selectivity_report.json)"
+    },
+    "G6": {
+      "status": "PASSED",
+      "telemetry_coverage": "72/72",
+      "missing_fields": []
+    },
+    "G8": {
+      "status": "PASSED",
+      "baseline_file_size_mib": 32,
+      "stability_repetitions": 10,
+      "baseline_cv": 0.0574,
+      "baseline_mean_ms": 271.28,
+      "baseline_latencies_ms": [
+        275.9,
+        264.28,
+        271.9,
+        270.29,
+        256.69,
+        283.94,
+        306.39,
+        249.82,
+        265.62,
+        267.94
+      ]
+    },
+    "G9": {
+      "status": "PASSED",
+      "crossover_criterion_frozen": true,
+      "baseline_file_size_mib": 32,
+      "primary_metrics_frozen": true,
+      "query_templates_frozen": true
+    }
+  },
+  "variant_summaries": {
+    "08mib": {
+      "count": 18,
+      "mean_ms": 313.05,
+      "stdev_ms": 169.95,
+      "min_ms": 137.24,
+      "max_ms": 691.03
+    },
+    "16mib": {
+      "count": 18,
+      "mean_ms": 450.65,
+      "stdev_ms": 292.67,
+      "min_ms": 205.11,
+      "max_ms": 1160.8
+    },
+    "32mib": {
+      "count": 18,
+      "mean_ms": 490.9,
+      "stdev_ms": 288.96,
+      "min_ms": 232.81,
+      "max_ms": 1220.81
+    },
+    "64mib": {
+      "count": 18,
+      "mean_ms": 517.38,
+      "stdev_ms": 294.13,
+      "min_ms": 258.39,
+      "max_ms": 1251.74
+    }
+  },
+  "status": "PASSED"
+}

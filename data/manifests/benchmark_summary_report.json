@@ -1,0 +1,15 @@
+{
+  "benchmark_start": "2026-09-22T00:15:30.457230+00:00",
+  "benchmark_end": "2026-09-22T00:23:08.999089+00:00",
+  "wall_time_seconds": 458.541859,
+  "total_runs": 1584,
+  "warmup_runs": 144,
+  "measured_runs": 1440,
+  "completed": 1584,
+  "failed": 0,
+  "missing_telemetry_runs": 0,
+  "conditions": 72,
+  "seed": 42,
+  "dry_run": false,
+  "raw_log_path": "D:\\DSIC-2604\\results\\raw\\runs.jsonl"
+}

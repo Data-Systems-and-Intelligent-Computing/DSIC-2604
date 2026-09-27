@@ -1293,7 +1293,7 @@ Diperiksa oleh `src/inspect_parquet.py` (`row_group_control`).
 - [ ] noise floor terukur; perbedaan di bawahnya tidak ditafsirkan.
 
 ### G8 — Baseline
-- [ ] 128 MiB baseline berjalan stabil.
+- [ ] 32 MiB baseline berjalan stabil (fallback grid, lihat configs/layout.yaml).
 
 ### G9 — Claim Freeze
 - [ ] crossover criterion sudah ditulis.

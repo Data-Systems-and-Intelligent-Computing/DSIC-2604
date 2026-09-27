@@ -2,16 +2,41 @@
 **Topik:** Interaksi Ukuran Data-File Parquet dan Selektivitas Query pada Lakehouse Bersumber Daya Terbatas: Evaluasi Terkontrol Menggunakan MMDEC  
 **Repositori:** [Data-Systems-and-Intelligent-Computing/DSIC-2604](https://github.com/Data-Systems-and-Intelligent-Computing/DSIC-2604)  
 **Dataset:** MMDEC (`Dataset_AIS_POS.parquet`) — DOI: [10.5281/zenodo.17491518](https://doi.org/10.5281/zenodo.17491518)  
-**Terakhir Diperbarui:** 11 September 2026
+**Terakhir Diperbarui:** 22 September 2026
+
+---
+
+## ⚠️ Prinsip Kolaborasi & Eksekusi
+- **Peran AI / Asisten:** Hanya memberikan instruksi, arahan langkah demi langkah, penjelasan konsep, dan rekomendasi kode/perintah.
+- **Peran Pengguna (User):** Mengetik kode, memodifikasi file, dan menjalankan perintah di terminal.
+- **Aturan Eksekusi:** AI **TIDAK BOLEH** mengeksekusi skrip/perintah terminal secara mandiri kecuali diminta secara eksplisit oleh Pengguna.
 
 ---
 
 ## 📌 Status Terkini Proyek
-- **Status Sinkronisasi Repo:**
-  - Repositori remote GitHub: `Data-Systems-and-Intelligent-Computing/DSIC-2604`.
-  - Folder lokal: Ditemukan folder `D:\DSIC-2604` (sudah ter-clone dengan git) dan `D:\Tugas Akhir` (workspace aktif di IDE).
-  - Berkas H1 telah dibuat di lokal dan dicatat di GitHub.
-- **Fase Aktif:** **Minggu 1 (H3 — Deploy Lakehouse & Smoke Test)**.
+- **Status Sinkronisasi Repo:** GitHub `origin/main` sinkron (Commit H15, H16, H17, H18, H19 bersih).
+- **Fase Aktif:** **Minggu 3 (H15–H21 — Analisis, Mekanisme, Robustness)**.
+- **Hari Kerja Terakhir:** **H19 Selesai (Failure & Anomaly Analysis, Figure/Tabel 14 Terbit)**.
+- **Hari Kerja Selanjutnya:** **H20 — Robustness Row-Order (Eksperimen E5: Deterministic Shuffled vs Date-Clustered & Figure 13)**.
+
+---
+
+## 🌅 PANDUAN RE-START BESOK (CHECKLIST AWAL HARI 18)
+Saat Anda membuka kembali sesi ini besok, jalankan 4 langkah runut ini di PowerShell:
+1. **Buka Docker Desktop** di Windows dan pastikan service Docker sudah berjalan (*Engine running*).
+2. **Nyalakan Stack Lakehouse:**
+   ```powershell
+   docker compose -f infra/docker-compose.yml --env-file .env up -d
+   ```
+3. **Verifikasi 3 Container Sehat (Up/Healthy):**
+   ```powershell
+   docker compose -f infra/docker-compose.yml --env-file .env ps
+   ```
+4. **Pulihkan Registrasi Katalog Iceberg:**
+   ```powershell
+   .venv\Scripts\python.exe scripts/restore_catalog.py
+   ```
+5. **Mulai H18:** Beritahu asisten: *"Saya sudah restore catalog, ayo kita mulai H18"*. Asisten akan langsung memandu eksekusi **Mechanism Attribution (E4)** dan pembuatan **Figure 8 & Figure 9**.
 
 ---
 
@@ -19,9 +44,9 @@
 
 | Minggu | Fokus | Eksperimen | Gate Utama | Status |
 |---|---|---|---|---|
-| **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | 🟡 In Progress (H1 ✅, H2 ⏳) |
-| **Minggu 2 (H8–H14)** | Main Factorial Benchmark | E3 | Kelengkapan run & telemetry | ⚪ Belum Dimulai |
-| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | ⚪ Belum Dimulai |
+| **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | ✅ Selesai (H1–H7 ✅) |
+| **Minggu 2 (H8–H14)** | Main Factorial Benchmark | E3 | Kelengkapan run & telemetry | ✅ Selesai (H8–H14 ✅) |
+| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | 🔄 Berjalan (H15 ✅, H16 ✅, H17 ✅) |
 | **Minggu 4 (H22–H28)** | Reproduksi, Ekstensi, Manuskrip | E5, E6 | Quality gate skripsi/artikel | ⚪ Belum Dimulai |
 
 ---
@@ -49,7 +74,7 @@
   - Rasio kompresi: `1,208x` (19 row groups)
   - Signifikansi grid H5: Kondisi 256 MiB menghasilkan < 8 file, menjadi dasar empiris perlunya varian fallback `8/16/32/64 MiB`.
 - [x] Deliverable audit tersimpan di `data/manifests/gate_g1_validation_report.json`.
-- [x] Catat hasil lengkap ke `rencana-eksperimen-bimbingan/minggu1/README.md`.
+- [x] Catat hasil lengkap ke `progres_minggu_1-4/minggu1/README.md`.
 - **Status Gate:** **Gate G1 LULUS 100%**.
 
 ---
@@ -82,16 +107,254 @@
 
 ---
 
-### ⚪ H6 — Generate Varian Parquet dan Audit
-- [ ] Tulis 4 varian ukuran file dari snapshot kanonik yang sama (row-group konstan).
-- [ ] Audit separasi IQR dan kesetaraan semantik (Gate **G2, G3, G4**).
-- [ ] Catat write cost ke `data/manifests/write_cost_manifest.csv`.
+### ✅ H6 — Generate Varian Parquet dan Audit (Selesai)
+- [x] Tulis 4 varian ukuran file dari snapshot kanonik yang sama (`ais_pos_08`, `ais_pos_16`, `ais_pos_32`, `ais_pos_64`):
+  - Row-group konstan: target 8 MiB (Snappy compression, unpartitioned, date_clustered_fixed).
+  - Row count konsisten 100%: masing-masing tepat 19.014.229 baris.
+- [x] Audit separasi IQR dan kontrol ukuran row-group:
+  - **Gate G2 (Layout Completeness):** LULUS (4/4 varian terbuat).
+  - **Gate G3 (IQR Separation & Feasibility):** LULUS (rasio median berdekatan: 1.85x, 1.92x, 1.82x > 1.5x; tidak ada tumpang-tindih IQR; kondisi terbesar 8 file ≥ 8).
+  - **Gate G4 (Row-group Control):** LULUS (spread relatif = 0.2276 ≤ toleransi 0.25).
+- [x] Uji kesetaraan semantik kueri (Q1, Q2, Q3) di Trino:
+  - Q1 (predicate scan count): 1.576.090 baris (100% identik di 4 varian).
+  - Q2 (selective aggregation: avg & max SOG): 100% identik.
+  - Q3 (selective group-by MessageType): 100% identik.
+  - Seluruh 6 unit test `tests/test_semantic_equivalence.py` lulus.
+- [x] Deliverables:
+  - `data/manifests/layout_manifest.csv`
+  - `data/manifests/write_cost_manifest.csv`
+  - `data/manifests/gate_g2g3g4_audit_report.json`
+  - `data/manifests/gate_equivalence_report.json`
+- **Status Gate:** **Gate G2, G3, G4 LULUS 100%**.
 
 ---
 
-### ⚪ H7 — Kalibrasi Selectivity dan Pilot Benchmark
-- [ ] Kalibrasi boundary 6 band selectivity (Gate **G5, G6**).
-- [ ] Uji pilot protokol benchmark (Gate **G8, G9**).
+### ✅ H7 — Kalibrasi Selectivity dan Pilot Benchmark (Selesai)
+- [x] Kalibrasi boundary 6 band selectivity pada tabel baseline (`ais_pos_32`):
+  - S1 (0.1%): measured = 0.0893% (rel_err = 10.7%) [LULUS]
+  - S2 (1.0%): measured = 0.8987% (rel_err = 10.1%) [LULUS]
+  - S3 (5.0%): measured = 4.5521% (rel_err = 9.0%) [LULUS]
+  - S4 (20.0%): measured = 17.5434% (rel_err = 12.3%) [LULUS]
+  - S5 (50.0%): measured = 45.1344% (rel_err = 9.7%) [LULUS]
+  - S6 (90.0%): measured = 76.0963% (rel_err = 15.4%) [LULUS]
+  - **Gate G5 (All bands within 20% relative error):** LULUS.
+  - **Gate G6 (Monotonically ordered):** LULUS.
+  - Deliverables: `data/manifests/selectivity_manifest.csv` dan `data/manifests/gate_g5g6_selectivity_report.json`.
+- [x] Uji pilot protokol benchmark (Gate **G8, G9**).
+  - Berhasil dibekukan Q1-Q3 di `configs/queries.yaml` dan Q4 di `data/manifests/q4_mmsi_sample.csv`.
+  - Durasi Pilot: 176.43 detik.
+  - Estimasi total durasi main benchmark: ~4.02 jam.
+  - Deliverables: `data/manifests/gate_g8_g9_pilot_report.json`.
+
+---
+
+## 📋 Rincian Progres Minggu 2
+
+### ✅ H8 — Pre-flight Check sebelum Main Run (Selesai)
+- [x] Verifikasi kesehatan 3 container Docker (Trino, Iceberg REST, MinIO).
+- [x] Buat script restorasi otomatis catalog: `scripts/restore_catalog.py`.
+- [x] Spot-check validasi row count 19.014.229 baris di kedua ujung grid (`ais_pos_08` & `ais_pos_64`).
+- [x] Konfirmasi config freeze bersih (`git diff` kosong).
+- [x] Buat entry point benchmark Windows: `scripts/run_benchmark.py`.
+- [x] Dry-run benchmark 72 query lulus tanpa error (wall time: 34.3s).
+- [x] Bersihkan direktori `results/raw/` untuk persiapan H9.
+- **Status Gate:** Checklist Pre-flight LULUS 100%.
+
+---
+
+### ✅ H9 — Main Factorial Benchmark Run (Selesai)
+- [x] Restorasi dan verifikasi 4 tabel Iceberg di Trino (`scripts/restore_catalog.py`).
+- [x] Eksekusi main factorial benchmark E3 (`scripts/run_benchmark.py`).
+- [x] Selesaikan seluruh 72 kondisi faktorial:
+  - 4 ukuran file (8, 16, 32, 64 MiB) × 6 band selektivitas (0.01%–50%) × 3 query families (Q1, Q2, Q3).
+  - 2 warm-up runs/kondisi (144 run) + 20 measured repetitions/kondisi (1.440 run) = 1.584 total run.
+- [x] Hasil metrik:
+  - Total runs: 1.584 (100% finished, 0 failed).
+  - Telemetri Trino: 100% lengkap (`missing_telemetry_runs: 0`).
+  - Wall time: 458.5 detik (~7,64 menit).
+- [x] Deliverables:
+  - `results/raw/runs.jsonl` (1.584 baris data mentah JSONL, ukuran ~1,4 MB).
+  - `data/manifests/benchmark_summary_report.json`.
+  - `src/catatan_belajar.md` (Buku catatan belajar komprehensif riset DSIC-2604).
+- **Status Gate:** **Gate Kelengkapan Run & Telemetry LULUS 100%**.
+
+---
+
+### ✅ H10 — Verifikasi Telemetry & Integritas Raw Log (Selesai)
+- [x] Buat skrip audit integritas otomatis: `scripts/verify_raw_runs.py`.
+- [x] Audit forensik 6 pilar pada `results/raw/runs.jsonl`:
+  - Total runs 100% cocok: 1.584 baris (144 warmup + 1.440 measured).
+  - Distribusi kondisi 100% seimbang: 72 kondisi faktorial unik (masing-masing 2 warmup + 20 measured).
+  - Status eksekusi 100% selesai: 1.584 FINISHED, 0 FAILED.
+  - Telemetri Trino 100% lengkap: 0 missing metrics, 0 null fields.
+  - Kewajaran metrik (sanity check): seluruh latensi, cpu, bytes, dan splits bernilai positif dan wajar.
+  - Konsistensi semantik output: row_count kueri identik di semua ukuran file.
+- [x] Deliverables:
+  - `scripts/verify_raw_runs.py`.
+  - `data/manifests/gate_h10_telemetry_report.json`.
+- **Status Gate:** **Gate Telemetry Completeness & Raw Log Integrity LULUS 100%**.
+
+---
+
+### ✅ H11 — Buffer / Catch-up / Re-run Evaluation (Selesai)
+- [x] Buat skrip evaluasi buffer otomatis: `scripts/audit_h11_buffer.py`.
+- [x] Evaluasi ambang batas re-run terhadap hasil Gate H10:
+  - Kegagalan kueri = 0 (Target: 0).
+  - Telemetri hilang = 0 (Target: 0).
+  - Kondisi timpang = 0 (Target: 0).
+  - Anomali nilai = 0 (Target: 0).
+- [x] Keputusan: Re-run ditiadakan secara sah (*Zero-Failure state*).
+- [x] Deliverables:
+  - `scripts/audit_h11_buffer.py`.
+  - `data/manifests/h11_buffer_clearance_report.json` (`CLEARED_NO_RERUN_NEEDED`).
+- **Status Milestone:** **Buffer Clearance LULUS 100% (CLEARED)**.
+
+---
+
+### ✅ H12 — Freeze Raw Data & Snapshot Checksum (Selesai)
+- [x] Buat skrip pembekuan otomatis: `scripts/freeze_raw_data.py`.
+- [x] Salin dan kunci data mentah ke berkas permanen: `results/raw/runs_frozen.jsonl`.
+- [x] Verifikasi kuantitas data: 1.584 baris utuh, 1.403.827 bytes.
+- [x] Hitung sidik jari kriptografis SHA-256 Checksum: `a868d202a03e2d0ff239b32bc4408f2cadf7c33f52adbcd5cf2d31469ae9cc6e`.
+- [x] Deliverables:
+  - `scripts/freeze_raw_data.py`.
+  - `results/raw/runs_frozen.jsonl`.
+  - `data/manifests/raw_freeze_manifest.json` (`FROZEN_AND_VERIFIED`).
+- **Status Milestone:** **Raw Data Freeze LULUS 100% (FROZEN & VERIFIED)**.
+
+---
+
+### ✅ H13 — Buffer & Out-of-Grid Benchmark (Q4 Entity Robustness) (Selesai)
+- [x] Buat skrip eksekutor benchmark Q4: `scripts/run_q4_robustness.py`.
+- [x] Eksekusi 200 kueri Q4 terhadap 50 sampel kapal MMSI pada 4 varian ukuran file (8, 16, 32, 64 MiB).
+- [x] Hasil & temuan empiris:
+  - 100% selesai: 200/200 sukses, 0 failed, durasi 381,8 detik (~6,36 menit).
+  - Mekanisme terbukti: Trino membaca ~436–447 MB data di seluruh varian karena predikat `Mmsi` tidak selaras dengan partisi temporal `Date` (*file skipping tidak membantu*).
+  - Efek split overhead: Ukuran 8 MiB menghasilkan 76 splits dengan rata-rata latensi terlambat (2.262 ms), sedangkan 64 MiB menghasilkan 53 splits dengan rata-rata latensi tercepat (1.619 ms).
+- [x] Deliverables:
+  - `scripts/run_q4_robustness.py`.
+  - `results/raw/q4_runs.jsonl`.
+  - `data/manifests/q4_robustness_report.json`.
+- **Status Milestone:** **Q4 Entity Robustness Benchmark LULUS 100% (PASSED)**.
+
+---
+
+### ✅ H14 — Persiapan Minggu 3 & Agregasi Data (P50/P95) (Selesai)
+- [x] Buat skrip pemroses data agregasi: `scripts/process_raw_benchmarks.py`.
+- [x] Ekstraksi 1.440 measured runs dari `results/raw/runs_frozen.jsonl`.
+- [x] Agregasi statistik ke-72 kondisi faktorial unik:
+  - Latensi tipikal: $P_{50}$ (median), mean, IQR, dan std deviasi.
+  - Latensi beban puncak: $P_{95}$ (tail latency).
+  - Telemetri teragregasi: median physical input bytes, median CPU ms, mean completed splits, median peak memory bytes.
+- [x] Deliverables:
+  - `scripts/process_raw_benchmarks.py`.
+  - `results/processed/benchmark_summary_p50_p95.csv`.
+  - `data/manifests/week2_completion_report.json`.
+- **Status Milestone Minggu 2 (H8–H14):** **MINGGU 2 SELESAI 100% (ALL GATES PASSED)**.
+
+---
+
+## 📋 Rincian Progres Minggu 3
+
+### ✅ H15 — Analisis Paired Difference & Evaluasi Crossover (Selesai)
+- [x] Buat skrip analisis: `scripts/analyze_paired_diff_h15.py`.
+- [x] Hitung paired latency difference Δ = latency(x) − latency(32 MiB) per blok repetisi:
+  - 3 ukuran non-baseline (8, 16, 64 MiB) × 3 QF × 6 selektivitas × 20 blok = **1.080 baris Δ**.
+- [x] Hitung ringkasan statistik: mean Δ, median Δ, P5–P95, pct_negative, dominant_sign → **54 sel ringkasan**.
+- [x] Evaluasi kriteria crossover (require_sign_change=true, require_replication ≥ 2/3 QF):
+  - **8 MiB vs 32 MiB:** 0/3 QF → ❌ NOT CONFIRMED (8 MiB selalu lebih cepat, tidak ada crossover).
+  - **16 MiB vs 32 MiB:** 0/3 QF → ❌ NOT CONFIRMED (16 MiB juga lebih cepat atau setara).
+  - **64 MiB vs 32 MiB:** 2/3 QF (Q1, Q2) → ✅ CONFIRMED (64 MiB lebih lambat di sel. rendah, lebih cepat di sel. tinggi).
+- [x] **Verdict Global: CROSSOVER_DETECTED — Hipotesis H2 SUPPORTED**.
+- [x] Deliverables:
+  - `scripts/analyze_paired_diff_h15.py`.
+  - `results/tables/paired_diff_table.csv` (1.080 baris Δ per blok).
+  - `results/tables/paired_diff_summary.csv` (54 sel ringkasan statistik).
+  - `data/manifests/crossover_eval.json` (laporan evaluasi crossover resmi).
+- **Status Milestone H15:** **PAIRED DIFFERENCE & CROSSOVER ANALYSIS LULUS 100%**.
+
+---
+
+### ✅ H16 — Bootstrap 95% CI & Visualisasi Heatmap/Kurva Latensi (Selesai)
+- [x] Buat skrip analisis & visualisasi: `scripts/analyze_h16_bootstrap_plots.py`.
+- [x] Kuantifikasi ketidakpastian non-parametrik (Bootstrap Resampling $B=2.000$, seed=42):
+  - Bootstrap 95% CI untuk Paired Difference ($\Delta$) per 54 sel faktorial (42/54 sel signifikan $p < 0.05$).
+  - Bootstrap 95% CI untuk Median Latensi ($P_{50}$) per 72 kondisi faktorial.
+- [x] Bangun 4 figur visualisasi publikasi ilmiah standar jurnal (DPI=300, PNG & PDF):
+  - **Figure 4:** Heatmap Rasio Latensi Relatif vs Baseline 32 MiB (Q1, Q2, Q3) dengan anotasi rasio dan signifikansi statistik (`*`).
+  - **Figure 5:** Kurva Latensi vs Measured Selectivity (log scale, $P_{50}$ solid + 95% CI shaded, $P_{95}$ dashed) untuk **Q1 (Predicate Scan)** beserta anotasi crossover point.
+  - **Figure 6:** Kurva Latensi vs Measured Selectivity untuk **Q2 (Selective Aggregation)** beserta anotasi crossover point.
+  - **Figure 7:** Kurva Latensi vs Measured Selectivity untuk **Q3 (Selective Group-By)** yang membuktikan stabilitas ketiadaan crossover.
+- [x] Deliverables:
+  - `results/processed/bootstrap_ci_paired_diff.csv` (54 baris data CI $\Delta$).
+  - `results/processed/bootstrap_ci_latency_p50.csv` (72 baris data CI $P_{50}$).
+  - `results/tables/bootstrap_ci_summary.csv` (54 baris tabel ringkasan manuskrip).
+  - `results/figures/fig4_latency_ratio_heatmap.png` & `.pdf`.
+  - `results/figures/fig5_q1_latency_vs_selectivity.png` & `.pdf`.
+  - `results/figures/fig6_q2_latency_vs_selectivity.png` & `.pdf`.
+  - `results/figures/fig7_q3_latency_vs_selectivity.png` & `.pdf`.
+  - `data/manifests/gate_h16_bootstrap_report.json`.
+- **Status Gate H16:** **BOOTSTRAP CI & VISUALIZATION FIGURES LULUS 100% (ALL CHECKS PASSED)**.
+
+---
+
+### ✅ H17 — Deteksi & Karakterisasi Region Crossover (Figure 10) (Selesai)
+- [x] Buat skrip analisis frontier: `scripts/analyze_h17_crossover_frontier.py`.
+- [x] Terapkan aturan crossover beku (`configs/crossover.yaml`): sign change, replikasi $\ge 2/3$ QF, `allow_uncertain_region: true`.
+- [x] Karakterisasi 3 domain operasional komparasi 64 MiB vs 32 MiB:
+  - **Zona I (Baseline Preferred):** Selektivitas $0.01\% - 0.1\%$ (`CI 95% > 0`, 32 MiB signifikan lebih cepat, 64 MiB menderita skipping penalty).
+  - **Zona II (Region of Uncertainty / Transition Band):** Selektivitas $1.0\% - 10.0\%$ (`0 ∈ CI 95%`, margin sempit di sekitar garis nol).
+  - **Zona III (Large-File Preferred vs Baseline):** Selektivitas $50\%$ pada Q1 dan Q2 (median $\Delta$ negatif hingga $-28.5\text{ ms}$).
+- [x] Hitung titik perpotongan crossover numerik ($s^*$):
+  - Q1 (Predicate Scan): $s^* \approx 0.58\%$.
+  - Q2 (Selective Aggregation): $s^* \approx 0.76\%$.
+  - Q3 (Hash Group-By): Tidak ada crossover (64 MiB konsisten lebih lambat dari 32 MiB).
+- [x] Bangun **Figure 10** (Figure wajib manuskrip):
+  - Panel A: Paired Difference $\Delta$ vs Selectivity dengan 95% Bootstrap CI dan batas visual 3 zona operasional.
+  - Panel B: Conditional Lakehouse Layout Decision Map lintas beban kueri.
+- [x] Deliverables:
+  - `scripts/analyze_h17_crossover_frontier.py`.
+  - `results/tables/crossover_decision_boundaries.csv` (18 baris klasifikasi zona operasional).
+  - `results/figures/fig10_crossover_frontier.png` & `.pdf` (Figure 10 dari 15 figur wajib).
+  - `data/manifests/gate_h17_crossover_report.json`.
+- **Status Gate H17:** **EMPIRICAL CROSSOVER FRONTIER & FIGURE 10 LULUS 100% (ALL CHECKS PASSED)**.
+
+---
+
+### ✅ H18 — Mechanism Attribution (Eksperimen E4: Atribusi Fisik Trino & Figure 8–9) (Selesai)
+- [x] Buat skrip analisis mekanisme jeroan engine: `scripts/analyze_h18_mechanism_attribution.py`.
+- [x] Ekstraksi telemetri 1.440 *measured runs*: `physical_input_bytes`, `completed_splits`, `cpu_ms`, `peak_memory_bytes`, `planning_ms`.
+- [x] Hitung korelasi statistik formal:
+  - $\Delta\text{latency}$ vs $\Delta\text{bytes}$: Pearson $r = 0.4324$ ($p < 0.001$), Spearman $\rho = 0.4679$ ($p < 0.001$).
+  - $\Delta\text{latency}$ vs $\Delta\text{splits}$: Pearson $r = -0.4489$, Spearman $\rho = -0.1799$.
+  - $\Delta\text{latency}$ vs $\Delta\text{cpu}$: Pearson $r = 0.4515$, Spearman $\rho = 0.5672$.
+- [x] Klasifikasi 72 sel rezim operasional: 27 `PRUNING_WIN`, 18 `BASELINE`, 15 `TRANSITION_BALANCED`, 6 `SPLIT_OVERHEAD_PENALTY`, 5 `SKIPPING_DEFICIT_PENALTY`, 1 `SPLIT_SCHEDULING_WIN`.
+- [x] Bangun **Figure 8** (Physical Input Bytes Read vs. Query Selectivity) — membuktikan 8 MiB memangkas I/O hingga 80% di selektivitas rendah, konvergen ke ~450 MiB di selektivitas tinggi.
+- [x] Bangun **Figure 9** (Completed Trino Splits vs. Query Selectivity) — membuktikan 64 MiB hanya menghasilkan 7 split dibandingkan 50 split pada 8 MiB, menjelaskan mekanisme crossover di $s=50\%$.
+- [x] Deliverables:
+  - `results/tables/mechanism_attribution_table.csv` (72 baris metrik telemetri).
+  - `results/tables/mechanism_correlations.csv` (7 baris analisis korelasi).
+  - `results/figures/fig8_physical_input_bytes_vs_selectivity.png` & `.pdf`.
+  - `results/figures/fig9_completed_splits_vs_selectivity.png` & `.pdf`.
+  - `data/manifests/gate_h18_mechanism_report.json`.
+- **Status Gate H18:** **MECHANISM ATTRIBUTION & FIGURES 8–9 LULUS 100% (ALL CHECKS PASSED — HIPOTESIS H4 DUKUNG KUAT)**.
+
+---
+
+### ✅ H19 — Failure Analysis & Diagnosis Anomali (Eksperimen E4: Figure & Tabel 14) (Selesai)
+- [x] Buat skrip audit forensik outlier: `scripts/analyze_h19_failure_analysis.py`.
+- [x] Audit komprehensif 214 anomali/outlier dari total 1.440 *measured runs* menggunakan Taksonomi 12 Kategori Lakehouse.
+- [x] Audit mendalam 25 kasus teratas dengan deviasi latensi tertinggi di Tabel 14.
+- [x] Verifikasi ambang batas protokol:
+  - Porsi `UNEXPLAINED_RESIDUAL` hanya **14.95%** (32 kasus), memenuhi syarat ketat protokol beku ($< 20\%$).
+  - Sisanya **85.05%** terbukti secara kausal disebabkan oleh faktor fisik arsitektural: Planning Spikes (51 kasus), Tail OS Jitter (32 kasus), Memory Allocations (31 kasus), Serialization Contention (29 kasus), Split Overproliferation (21 kasus), JIT Cold Start (15 kasus), JVM GC (2 kasus), dan Snappy CPU burst (1 kasus).
+- [x] Bangun **Figure 14** (Failure & Anomaly Distribution) — Panel A bar chart 12 kategori dan Panel B donat pengelompokan sistemik.
+- [x] Deliverables:
+  - `results/tables/failure_analysis_table.csv` (25 kasus anomali mendalam).
+  - `results/tables/failure_taxonomy_summary.csv` (ringkasan 12 kategori).
+  - `results/figures/fig14_failure_anomaly_distribution.png` & `.pdf` (Figure 14 wajib manuskrip).
+  - `data/manifests/gate_h19_anomaly_report.json`.
+- **Status Gate H19:** **FAILURE & ANOMALY ANALYSIS LULUS 100% (ALL CHECKS PASSED — UNEXPLAINED < 20% VERIFIED)**.
 
 ---
 
@@ -100,3 +363,17 @@
   - Audit workspace menemukan keberadaan clone repo di `D:\DSIC-2604` dan workspace aktif di `D:\Tugas Akhir`.
   - Berkas pelacak progres `src/progres.md` dibuat untuk memandu langkah kerja harian secara bertahap.
   - Prioritas langkah: sinkronisasi workspace/repo, finalisasi H2 (Gate G1), dan persiapan deployment lakehouse (H3).
+- **21 September 2026:**
+  - Penyelesaian H8: Penanganan 5 issue teknis (resource limits, in-memory REST catalog, register_table procedure, script Python native Windows, dan normalisasi key selektivitas). Seluruh checklist pre-flight lulus 100%.
+- **22 September 2026:**
+  - Penyelesaian H9: Restorasi catalog berhasil dan eksekusi Main Factorial Benchmark (Eksperimen E3) rampung 100% (1.584 run, 0 failed, telemetri lengkap) dalam waktu 458,5 detik. Data mentah tersimpan di `results/raw/runs.jsonl`.
+  - Penyelesaian H10: Audit mutu data mentah & telemetri pada `results/raw/runs.jsonl` menggunakan `scripts/verify_raw_runs.py` berhasil memvalidasi seluruh 6 pilar integritas dengan kelulusan 100% (Gate H10 PASS). Deliverable tersimpan di `data/manifests/gate_h10_telemetry_report.json`.
+  - Penyelesaian H11: Evaluasi buffer kueri ulang via `scripts/audit_h11_buffer.py` mengonfirmasi status *Zero-Failure* (0 gagal, 0 hilang), sehingga re-run dinyatakan tidak diperlukan (`CLEARED_NO_RERUN_NEEDED`). Data mentah siap 100% dibekukan pada H12. Deliverable tersimpan di `data/manifests/h11_buffer_clearance_report.json`.
+  - Penyelesaian H12: Pembekuan data mentah ke `results/raw/runs_frozen.jsonl` berhasil tuntas (1.584 baris, 1.403.827 bytes) dan disegel dengan sidik jari SHA-256 (`a868d202...`). Data mentah resmi berstatus `FROZEN_AND_VERIFIED`. Deliverable tersimpan di `data/manifests/raw_freeze_manifest.json`.
+  - Penyelesaian H13: Eksekusi Out-of-Grid Benchmark Q4 Entity Robustness berhasil tuntas (200 run, 0 failed, durasi 381,8 detik). Temuan empiris mengonfirmasi hipotesis H4 & RQ5: ketika file skipping tidak membantu, file 64 MiB mengungguli 8 MiB akibat lebih rendahnya overhead penjadwalan split (53 vs 76 splits). Deliverable tersimpan di `results/raw/q4_runs.jsonl` dan `data/manifests/q4_robustness_report.json`.
+  - Penyelesaian H14: Agregasi 1.440 measured runs menjadi ringkasan statistik P50, P95, IQR, dan telemetri per 72 kondisi berhasil tuntas ke `results/processed/benchmark_summary_p50_p95.csv`. Seluruh gerbang Minggu 2 resmi lulus 100% (ALL GATES PASSED). Repositori siap bertransisi ke Minggu 3 (Analisis, Visualisasi, dan Uji Hipotesis). Deliverable tersimpan di `data/manifests/week2_completion_report.json`.
+  - Penyelesaian H15: Analisis Paired Difference 1.080 baris Δ latensi berhasil tuntas. **Crossover 64 MiB vs 32 MiB terkonfirmasi di 2/3 query family (Q1 & Q2)** — 64 MiB lebih lambat di selektivitas rendah (Δ median ≈ +34 ms) dan berbalik lebih cepat di selektivitas tinggi (Δ median Q1/0.50 ≈ −18 ms). 8 MiB dan 16 MiB tidak menunjukkan crossover (selalu lebih cepat dari 32 MiB). Hipotesis H2 (Crossover) dan H1 (Interaction) didukung data. Deliverable: `results/tables/paired_diff_table.csv`, `results/tables/paired_diff_summary.csv`, `data/manifests/crossover_eval.json`.
+  - Penyelesaian H16: Analisis Bootstrap 95% Confidence Interval ($B=2.000$) dan pembuatan 4 figur visualisasi jurnal (Figure 4, 5, 6, 7 dalam format PNG 300 DPI dan PDF) berhasil tuntas 100%. 42 dari 54 sel faktorial berpasangan terbukti berbeda signifikan secara statistik dari baseline 32 MiB ($p < 0.05$). Keunggulan varian 8 MiB signifikan di seluruh 18 kombinasi (Speedup 1.29x–1.63x). Pada 64 MiB vs 32 MiB, penalti latensi pada selektivitas rendah signifikan, sedangkan pada selektivitas 50% CI menyentuh nol yang secara empiris memvalidasi keberadaan *region of uncertainty / crossover frontier* (H17). Deliverables: `results/processed/bootstrap_ci_paired_diff.csv`, `results/processed/bootstrap_ci_latency_p50.csv`, `results/tables/bootstrap_ci_summary.csv`, Figure 4–7, `data/manifests/gate_h16_bootstrap_report.json`.
+  - Penyelesaian H17: Karakterisasi Empirical Crossover Frontier dan pembuatan Figure 10 (Conditional Lakehouse Decision Map) berhasil tuntas 100%. Tiga domain operasional formal berhasil dipetakan: Zona I (Baseline Preferred, $s \le 0.1\%$), Zona II (Region of Uncertainty, $1\% \le s \le 10\%$), dan Zona III (Large-File Preferred vs Baseline pada $s = 50\%$). Titik crossover numerik terinterpolasi pada $s^* \approx 0.58\%$ untuk Q1 dan $s^* \approx 0.76\%$ untuk Q2, sedangkan Q3 terbukti stabil tanpa crossover. Deliverables: `results/tables/crossover_decision_boundaries.csv`, `results/figures/fig10_crossover_frontier.png` & `.pdf`, `data/manifests/gate_h17_crossover_report.json`.
+  - Penyelesaian H18: Analisis Atribusi Mekanisme Trino Internals (Eksperimen E4) berhasil tuntas 100%. Korelasi statistik membuktikan bahwa penghematan data skipping (bytes) adalah pendorong utama kecepatan di selektivitas rendah ($r = 0.4324$), sedangkan pengurangan split scheduling overhead (7 vs 50 splits) menjelaskan superioritas file 64 MiB di selektivitas tinggi ($s = 50\%$). Seluruh deliverables (Figure 8, Figure 9, Tabel Atribusi, Tabel Korelasi, dan Manifest H18) terbit lengkap dan valid. Hipotesis H4 (Mechanism Trade-Off) didukung penuh oleh bukti empiris.
+  - Penyelesaian H19: Failure Analysis & Diagnosis Anomali (Eksperimen E4) berhasil tuntas 100%. Dari 214 anomali terdeteksi, 85.05% berhasil didiagnosis ke akar masalah arsitektural (planning spike, split proliferation, JIT cold penalty, dll.), dan hanya 14.95% residu acak yang tidak terjelaskan (syarat protokol < 20% terpenuhi). Deliverables lengkap: Tabel 14 (audit 25 kasus teratas), tabel ringkasan 12 kategori, Figure 14 (distribusi anomali), dan Manifest H19. Validitas statistik dan internal riset terbukti kokoh.

@@ -4,8 +4,8 @@ Target writer bukan ground truth. Seluruh keputusan grid dan klaim
 "file size berbeda" harus bersandar pada distribusi realized di modul ini.
 """
 from pathlib import Path
-
 import numpy as np
+import pyarrow as pa
 import pyarrow.parquet as pq
 
 MIB = 2**20
@@ -119,3 +119,50 @@ def projected_file_count(table_size_mib, target_file_size_mib):
     if target_file_size_mib <= 0:
         raise ValueError("target_file_size_mib harus positif")
     return max(1, int(table_size_mib // target_file_size_mib))
+
+
+def verify_nested_column_type(directory, column_name="id_chunk"):
+    """Verifikasi bahwa kolom nested tetap bertipe list setelah rewrite (gate G4).
+
+    Membaca skema Arrow dari file Parquet pertama di direktori.
+    Digunakan untuk memastikan bahwa proses rewrite layout tidak mengubah
+    tipe nested `id_chunk` (list) menjadi tipe lain.
+
+    Args:
+        directory: Path ke direktori berisi file .parquet.
+        column_name: Nama kolom yang diperiksa (default: "id_chunk").
+
+    Returns:
+        dict dengan kunci: column, arrow_type, is_list, preserved.
+    """
+    files = sorted(Path(directory).glob("*.parquet"))
+    if not files:
+        return {
+            "column": column_name,
+            "arrow_type": None,
+            "is_list": False,
+            "preserved": False,
+            "error": "no parquet files found",
+        }
+
+    pf = pq.ParquetFile(files[0])
+    schema = pf.schema_arrow
+
+    if column_name not in schema.names:
+        return {
+            "column": column_name,
+            "arrow_type": None,
+            "is_list": False,
+            "preserved": False,
+            "error": f"column '{column_name}' not found in schema",
+        }
+
+    field = schema.field(column_name)
+    is_list = isinstance(field.type, pa.ListType)
+
+    return {
+        "column": column_name,
+        "arrow_type": str(field.type),
+        "is_list": is_list,
+        "preserved": is_list,
+    }
