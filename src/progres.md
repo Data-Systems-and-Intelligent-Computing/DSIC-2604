@@ -14,29 +14,25 @@
 ---
 
 ## 📌 Status Terkini Proyek
-- **Status Sinkronisasi Repo:** GitHub `origin/main` sinkron (Commit H15, H16, H17, H18, H19 bersih).
-- **Fase Aktif:** **Minggu 3 (H15–H21 — Analisis, Mekanisme, Robustness)**.
-- **Hari Kerja Terakhir:** **H19 Selesai (Failure & Anomaly Analysis, Figure/Tabel 14 Terbit)**.
-- **Hari Kerja Selanjutnya:** **H20 — Robustness Row-Order (Eksperimen E5: Deterministic Shuffled vs Date-Clustered & Figure 13)**.
+- **Status Sinkronisasi Repo:** Menuntaskan H22 Clean-Slate Reproduction & Catatan Literatur Lengkap.
+- **Fase Aktif:** **Minggu 4 (H22–H28 — Reproduksi, Ekstensi, Manuskrip)**.
+- **Hari Kerja Terakhir:** **H22 Selesai (Clean-Slate Reproduction terverifikasi, ranking deterministik terbukti)**.
+- **Hari Kerja Selanjutnya:** **Minggu 4 Lanjutan (Integrasi 33 Literatur Supervisor, Penyusunan Bab 3 & Bab 4 Skripsi)**.
 
 ---
 
-## 🌅 PANDUAN RE-START BESOK (CHECKLIST AWAL HARI 18)
-Saat Anda membuka kembali sesi ini besok, jalankan 4 langkah runut ini di PowerShell:
-1. **Buka Docker Desktop** di Windows dan pastikan service Docker sudah berjalan (*Engine running*).
-2. **Nyalakan Stack Lakehouse:**
+## 🌅 PANDUAN RE-START NANTI (CHECKLIST SAAT MELANJUTKAN)
+Saat Anda kembali membuka sesi ini nanti, langkah yang perlu Anda lakukan:
+1. **Nyalakan Stack Lakehouse (jika membutuhkan kueri):**
    ```powershell
    docker compose -f infra/docker-compose.yml --env-file .env up -d
    ```
-3. **Verifikasi 3 Container Sehat (Up/Healthy):**
-   ```powershell
-   docker compose -f infra/docker-compose.yml --env-file .env ps
-   ```
-4. **Pulihkan Registrasi Katalog Iceberg:**
+2. **Pulihkan Registrasi Katalog:**
    ```powershell
    .venv\Scripts\python.exe scripts/restore_catalog.py
    ```
-5. **Mulai H18:** Beritahu asisten: *"Saya sudah restore catalog, ayo kita mulai H18"*. Asisten akan langsung memandu eksekusi **Mechanism Attribution (E4)** dan pembuatan **Figure 8 & Figure 9**.
+3. **Mulai Sesi:**
+   Cukup katakan: *"Ayo kita lanjut Minggu 4"* atau *"Ayo kita mulai tulis BAB 3/4"*. Asisten akan langsung memandu Anda menyusun naskah skripsi berdasarkan data empiris dan 33 literatur supervisor.
 
 ---
 
