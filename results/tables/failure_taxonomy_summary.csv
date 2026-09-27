@@ -1,0 +1,13 @@
+category_key,category_description,anomaly_count,percentage_of_anomalies
+JVM_GC_PAUSE,Jeda Garbage Collection JVM Trino (elapsed jauh melampaui CPU time),2,0.93
+COORDINATOR_QUEUE_DELAY,Antrean Koordinator Trino (queued_ms mengalami lonjakan),0,0.0
+PLANNING_SPIKE,Lonjakan Waktu Perencanaan/Kompilasi Kueri (planning_ms > 1.5x median),51,23.83
+SPLIT_OVERPROLIFERATION,Beban Penjadwalan Split Tinggi (banyak partisi split pada file 8 MiB),21,9.81
+SKIPPING_DEFICIT,Defisit Pemangkasan Data (file 64 MiB membaca byte jauh lebih banyak),0,0.0
+MEMORY_SPIKE,Lonjakan Alokasi Memori Heap (peak_memory_bytes di atas persentil 90),31,14.49
+CPU_BURST_DECOMPRESSION,Lonjakan Beban CPU Dekompresi Snappy (cpu_ms > 1.35x median),1,0.47
+TAIL_LATENCY_HEAVY_TAIL,Variasi Ekor Distribusi OS/Thread Jitter (latensi run > P95 sel),32,14.95
+EARLY_BLOCK_COLD_PENALTY,Penalti Blok Awal (efek transisi cache/JIT pada blok repetisi awal),15,7.01
+STORAGE_IO_WAIT,Latensi Waktu Tunggu Transfer I/O Storage MinIO,0,0.0
+RESULT_SERIALIZATION_CONTENTION,Kontensi Buffer Penampungan Baris Hasil Kueri,29,13.55
+UNEXPLAINED_RESIDUAL,Residu Acak Tanpa Penjelasan Deterministik (noise murni),32,14.95

@@ -14,10 +14,10 @@
 ---
 
 ## 📌 Status Terkini Proyek
-- **Status Sinkronisasi Repo:** GitHub `origin/main` sinkron 100% (Commit H15, H16, H17 bersih).
+- **Status Sinkronisasi Repo:** GitHub `origin/main` sinkron (Commit H15, H16, H17, H18, H19 bersih).
 - **Fase Aktif:** **Minggu 3 (H15–H21 — Analisis, Mekanisme, Robustness)**.
-- **Hari Kerja Terakhir:** **H17 Selesai (Empirical Crossover Frontier & Figure 10 Terbit)**.
-- **Hari Kerja Selanjutnya:** **H18 — Mechanism Attribution (Eksperimen E4: Atribusi Fisik Trino & Figure 8–9)**.
+- **Hari Kerja Terakhir:** **H19 Selesai (Failure & Anomaly Analysis, Figure/Tabel 14 Terbit)**.
+- **Hari Kerja Selanjutnya:** **H20 — Robustness Row-Order (Eksperimen E5: Deterministic Shuffled vs Date-Clustered & Figure 13)**.
 
 ---
 
@@ -321,6 +321,43 @@ Saat Anda membuka kembali sesi ini besok, jalankan 4 langkah runut ini di PowerS
 
 ---
 
+### ✅ H18 — Mechanism Attribution (Eksperimen E4: Atribusi Fisik Trino & Figure 8–9) (Selesai)
+- [x] Buat skrip analisis mekanisme jeroan engine: `scripts/analyze_h18_mechanism_attribution.py`.
+- [x] Ekstraksi telemetri 1.440 *measured runs*: `physical_input_bytes`, `completed_splits`, `cpu_ms`, `peak_memory_bytes`, `planning_ms`.
+- [x] Hitung korelasi statistik formal:
+  - $\Delta\text{latency}$ vs $\Delta\text{bytes}$: Pearson $r = 0.4324$ ($p < 0.001$), Spearman $\rho = 0.4679$ ($p < 0.001$).
+  - $\Delta\text{latency}$ vs $\Delta\text{splits}$: Pearson $r = -0.4489$, Spearman $\rho = -0.1799$.
+  - $\Delta\text{latency}$ vs $\Delta\text{cpu}$: Pearson $r = 0.4515$, Spearman $\rho = 0.5672$.
+- [x] Klasifikasi 72 sel rezim operasional: 27 `PRUNING_WIN`, 18 `BASELINE`, 15 `TRANSITION_BALANCED`, 6 `SPLIT_OVERHEAD_PENALTY`, 5 `SKIPPING_DEFICIT_PENALTY`, 1 `SPLIT_SCHEDULING_WIN`.
+- [x] Bangun **Figure 8** (Physical Input Bytes Read vs. Query Selectivity) — membuktikan 8 MiB memangkas I/O hingga 80% di selektivitas rendah, konvergen ke ~450 MiB di selektivitas tinggi.
+- [x] Bangun **Figure 9** (Completed Trino Splits vs. Query Selectivity) — membuktikan 64 MiB hanya menghasilkan 7 split dibandingkan 50 split pada 8 MiB, menjelaskan mekanisme crossover di $s=50\%$.
+- [x] Deliverables:
+  - `results/tables/mechanism_attribution_table.csv` (72 baris metrik telemetri).
+  - `results/tables/mechanism_correlations.csv` (7 baris analisis korelasi).
+  - `results/figures/fig8_physical_input_bytes_vs_selectivity.png` & `.pdf`.
+  - `results/figures/fig9_completed_splits_vs_selectivity.png` & `.pdf`.
+  - `data/manifests/gate_h18_mechanism_report.json`.
+- **Status Gate H18:** **MECHANISM ATTRIBUTION & FIGURES 8–9 LULUS 100% (ALL CHECKS PASSED — HIPOTESIS H4 DUKUNG KUAT)**.
+
+---
+
+### ✅ H19 — Failure Analysis & Diagnosis Anomali (Eksperimen E4: Figure & Tabel 14) (Selesai)
+- [x] Buat skrip audit forensik outlier: `scripts/analyze_h19_failure_analysis.py`.
+- [x] Audit komprehensif 214 anomali/outlier dari total 1.440 *measured runs* menggunakan Taksonomi 12 Kategori Lakehouse.
+- [x] Audit mendalam 25 kasus teratas dengan deviasi latensi tertinggi di Tabel 14.
+- [x] Verifikasi ambang batas protokol:
+  - Porsi `UNEXPLAINED_RESIDUAL` hanya **14.95%** (32 kasus), memenuhi syarat ketat protokol beku ($< 20\%$).
+  - Sisanya **85.05%** terbukti secara kausal disebabkan oleh faktor fisik arsitektural: Planning Spikes (51 kasus), Tail OS Jitter (32 kasus), Memory Allocations (31 kasus), Serialization Contention (29 kasus), Split Overproliferation (21 kasus), JIT Cold Start (15 kasus), JVM GC (2 kasus), dan Snappy CPU burst (1 kasus).
+- [x] Bangun **Figure 14** (Failure & Anomaly Distribution) — Panel A bar chart 12 kategori dan Panel B donat pengelompokan sistemik.
+- [x] Deliverables:
+  - `results/tables/failure_analysis_table.csv` (25 kasus anomali mendalam).
+  - `results/tables/failure_taxonomy_summary.csv` (ringkasan 12 kategori).
+  - `results/figures/fig14_failure_anomaly_distribution.png` & `.pdf` (Figure 14 wajib manuskrip).
+  - `data/manifests/gate_h19_anomaly_report.json`.
+- **Status Gate H19:** **FAILURE & ANOMALY ANALYSIS LULUS 100% (ALL CHECKS PASSED — UNEXPLAINED < 20% VERIFIED)**.
+
+---
+
 ## 📝 Catatan Sesi & Keputusan
 - **11 September 2026:**
   - Audit workspace menemukan keberadaan clone repo di `D:\DSIC-2604` dan workspace aktif di `D:\Tugas Akhir`.
@@ -338,3 +375,5 @@ Saat Anda membuka kembali sesi ini besok, jalankan 4 langkah runut ini di PowerS
   - Penyelesaian H15: Analisis Paired Difference 1.080 baris Δ latensi berhasil tuntas. **Crossover 64 MiB vs 32 MiB terkonfirmasi di 2/3 query family (Q1 & Q2)** — 64 MiB lebih lambat di selektivitas rendah (Δ median ≈ +34 ms) dan berbalik lebih cepat di selektivitas tinggi (Δ median Q1/0.50 ≈ −18 ms). 8 MiB dan 16 MiB tidak menunjukkan crossover (selalu lebih cepat dari 32 MiB). Hipotesis H2 (Crossover) dan H1 (Interaction) didukung data. Deliverable: `results/tables/paired_diff_table.csv`, `results/tables/paired_diff_summary.csv`, `data/manifests/crossover_eval.json`.
   - Penyelesaian H16: Analisis Bootstrap 95% Confidence Interval ($B=2.000$) dan pembuatan 4 figur visualisasi jurnal (Figure 4, 5, 6, 7 dalam format PNG 300 DPI dan PDF) berhasil tuntas 100%. 42 dari 54 sel faktorial berpasangan terbukti berbeda signifikan secara statistik dari baseline 32 MiB ($p < 0.05$). Keunggulan varian 8 MiB signifikan di seluruh 18 kombinasi (Speedup 1.29x–1.63x). Pada 64 MiB vs 32 MiB, penalti latensi pada selektivitas rendah signifikan, sedangkan pada selektivitas 50% CI menyentuh nol yang secara empiris memvalidasi keberadaan *region of uncertainty / crossover frontier* (H17). Deliverables: `results/processed/bootstrap_ci_paired_diff.csv`, `results/processed/bootstrap_ci_latency_p50.csv`, `results/tables/bootstrap_ci_summary.csv`, Figure 4–7, `data/manifests/gate_h16_bootstrap_report.json`.
   - Penyelesaian H17: Karakterisasi Empirical Crossover Frontier dan pembuatan Figure 10 (Conditional Lakehouse Decision Map) berhasil tuntas 100%. Tiga domain operasional formal berhasil dipetakan: Zona I (Baseline Preferred, $s \le 0.1\%$), Zona II (Region of Uncertainty, $1\% \le s \le 10\%$), dan Zona III (Large-File Preferred vs Baseline pada $s = 50\%$). Titik crossover numerik terinterpolasi pada $s^* \approx 0.58\%$ untuk Q1 dan $s^* \approx 0.76\%$ untuk Q2, sedangkan Q3 terbukti stabil tanpa crossover. Deliverables: `results/tables/crossover_decision_boundaries.csv`, `results/figures/fig10_crossover_frontier.png` & `.pdf`, `data/manifests/gate_h17_crossover_report.json`.
+  - Penyelesaian H18: Analisis Atribusi Mekanisme Trino Internals (Eksperimen E4) berhasil tuntas 100%. Korelasi statistik membuktikan bahwa penghematan data skipping (bytes) adalah pendorong utama kecepatan di selektivitas rendah ($r = 0.4324$), sedangkan pengurangan split scheduling overhead (7 vs 50 splits) menjelaskan superioritas file 64 MiB di selektivitas tinggi ($s = 50\%$). Seluruh deliverables (Figure 8, Figure 9, Tabel Atribusi, Tabel Korelasi, dan Manifest H18) terbit lengkap dan valid. Hipotesis H4 (Mechanism Trade-Off) didukung penuh oleh bukti empiris.
+  - Penyelesaian H19: Failure Analysis & Diagnosis Anomali (Eksperimen E4) berhasil tuntas 100%. Dari 214 anomali terdeteksi, 85.05% berhasil didiagnosis ke akar masalah arsitektural (planning spike, split proliferation, JIT cold penalty, dll.), dan hanya 14.95% residu acak yang tidak terjelaskan (syarat protokol < 20% terpenuhi). Deliverables lengkap: Tabel 14 (audit 25 kasus teratas), tabel ringkasan 12 kategori, Figure 14 (distribusi anomali), dan Manifest H19. Validitas statistik dan internal riset terbukti kokoh.

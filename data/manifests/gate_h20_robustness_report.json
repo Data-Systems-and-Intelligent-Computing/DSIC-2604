@@ -1,0 +1,23 @@
+{
+  "gate": "H20",
+  "milestone": "ROBUSTNESS_ROW_ORDER_EVALUATION",
+  "timestamp_utc": "2026-09-27T02:18:38.215207+00:00",
+  "input_files": {
+    "ordered_runs": "results\\raw\\runs_frozen.jsonl",
+    "non_aligned_runs": "results\\raw\\q4_runs.jsonl"
+  },
+  "output_artifacts": {
+    "robustness_table": "results\\tables\\row_order_robustness_table.csv",
+    "figure_13_png": "results\\figures\\fig13_ordered_vs_shuffled_robustness.png",
+    "figure_13_pdf": "results\\figures\\fig13_ordered_vs_shuffled_robustness.pdf"
+  },
+  "key_findings": {
+    "rq5_answer": "Pola interaksi ukuran file Parquet sangat sensitif terhadap keselarasan susunan baris (row order). Pada data terurut waktu (Date-clustered), varian 8 MiB mendominasi berkat fine-grained row-group pruning. Namun ketika kueri tidak selaras (non-aligned Mmsi / shuffled), skipping efisiensi menjadi 0% (semua ukuran memindai 100% tabel), sehingga varian 64 MiB berbalik menjadi yang paling efisien berkat minimnya split coordination overhead (53 vs 76 splits).",
+    "ranking_inversion": {
+      "ordered_layout_winner": "8 MiB (Speedup 1.34x vs 32 MiB)",
+      "shuffled_layout_winner": "64 MiB (Speedup 1.05x vs 32 MiB; 8 MiB suffers 76 splits)"
+    },
+    "hypothesis_h4_and_rq5_status": "FULLY_VALIDATED"
+  },
+  "status": "PASSED_100_PERCENT"
+}

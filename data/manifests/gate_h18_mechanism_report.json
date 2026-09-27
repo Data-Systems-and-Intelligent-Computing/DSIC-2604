@@ -1,0 +1,38 @@
+{
+  "gate": "H18",
+  "milestone": "MECHANISM_ATTRIBUTION",
+  "timestamp_utc": "2026-09-26T23:26:37.379293+00:00",
+  "input_files": {
+    "frozen_runs": "results\\raw\\runs_frozen.jsonl",
+    "n_measured_runs": 1440
+  },
+  "output_artifacts": {
+    "attribution_table": "results\\tables\\mechanism_attribution_table.csv",
+    "correlations_table": "results\\tables\\mechanism_correlations.csv",
+    "figure_8_png": "results\\figures\\fig8_physical_input_bytes_vs_selectivity.png",
+    "figure_8_pdf": "results\\figures\\fig8_physical_input_bytes_vs_selectivity.pdf",
+    "figure_9_png": "results\\figures\\fig9_completed_splits_vs_selectivity.png",
+    "figure_9_pdf": "results\\figures\\fig9_completed_splits_vs_selectivity.pdf"
+  },
+  "key_findings": {
+    "hypothesis_h4_mechanism": "SUPPORTED",
+    "correlation_summary": {
+      "pearson_r_delta_bytes": 0.4324,
+      "spearman_rho_delta_bytes": 0.4679,
+      "pearson_r_delta_splits": -0.4489,
+      "spearman_rho_delta_splits": -0.1799,
+      "pearson_r_delta_cpu": 0.4515,
+      "spearman_rho_delta_cpu": 0.5672
+    },
+    "regime_distribution": {
+      "PRUNING_WIN": 27,
+      "TRANSITION_BALANCED": 15,
+      "BASELINE": 18,
+      "SPLIT_OVERHEAD_PENALTY": 6,
+      "SKIPPING_DEFICIT_PENALTY": 5,
+      "SPLIT_SCHEDULING_WIN": 1
+    },
+    "crossover_mechanism_explanation": "At low selectivity (<=1%), small files (8 MiB) win via row-group pruning, reducing physical input bytes by up to 80%. At high selectivity (50%), pruning advantages vanish as queries scan the entire table (~450 MiB). At this point, large files (64 MiB) achieve lower latency than 32 MiB because they generate ~7 completed splits compared to 14-16 splits for 32 MiB and ~50 splits for 8 MiB, saving significant coordinator scheduling and task coordination overhead."
+  },
+  "status": "PASSED_100_PERCENT"
+}
