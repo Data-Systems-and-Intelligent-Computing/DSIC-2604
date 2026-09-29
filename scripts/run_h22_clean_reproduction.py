@@ -96,45 +96,40 @@ def load_v1_baseline_medians():
     logger.info(f"Berhasil memuat {len(medians)} kondisi baseline dari Results v1.")
     return medians
 
-def execute_trino_query(sql: str):
-    """Menjalankan kueri SQL ke Trino REST API dan mengembalikan durasi ms."""
-    headers = {
-        "X-Trino-User": TRINO_USER,
-        "X-Trino-Catalog": "iceberg",
-        "X-Trino-Schema": "dsic2604",
-    }
+import os
+from trino.dbapi import connect as trino_connect
+
+def get_trino_connection():
+    """Membuat koneksi Trino DBAPI resmi yang identik dengan src/benchmark.py."""
+    return trino_connect(
+        host=os.getenv("TRINO_HOST", "localhost"),
+        port=int(os.getenv("TRINO_PORT", "8080")),
+        user=os.getenv("TRINO_USER", "dsic2604"),
+        catalog=os.getenv("TRINO_CATALOG", "iceberg"),
+        schema=os.getenv("TRINO_SCHEMA", "dsic2604"),
+    )
+
+def execute_trino_query(conn, sql: str) -> float:
+    """Menjalankan kueri SQL menggunakan client Trino DBAPI resmi (identik dengan H9)."""
+    cur = conn.cursor()
     t_start = time.perf_counter()
-    resp = requests.post(TRINO_URL, data=sql.encode("utf-8"), headers=headers, timeout=60)
-    resp.raise_for_status()
-    query_json = resp.json()
-    next_uri = query_json.get("nextUri")
-
-    while next_uri:
-        time.sleep(0.02)
-        r = requests.get(next_uri, timeout=60)
-        r.raise_for_status()
-        query_json = r.json()
-        next_uri = query_json.get("nextUri")
-        state = query_json.get("stats", {}).get("state")
-        if state in ("FAILED", "CANCELED"):
-            err = query_json.get("error", {}).get("message", "Unknown error")
-            raise RuntimeError(f"Kueri gagal: {err}")
-
+    cur.execute(sql)
+    cur.fetchall()
     t_end = time.perf_counter()
-    duration_ms = (t_end - t_start) * 1000.0
-    return duration_ms
+    return (t_end - t_start) * 1000.0
 
 def main():
     logger.info("=== H22: CLEAN-SLATE REPRODUCTION EXPERIMENT ===")
     v1_medians = load_v1_baseline_medians()
+    conn = get_trino_connection()
 
     results = []
     print("\n" + "="*85)
     print(f"{'Kondisi':<20} | {'Varian':<8} | {'Band':<12} | {'v1 Median':<12} | {'H22 Median':<12} | {'Deviasi (%)':<10}")
     print("="*85)
 
-    REPETITIONS = 5
-    WARMUP_RUNS = 1
+    REPETITIONS = 10
+    WARMUP_RUNS = 3
 
     for cond in REPRESENTATIVE_CONDITIONS:
         f_size = cond["file_size"]
@@ -149,12 +144,12 @@ def main():
 
         # 1. Warm-up
         for _ in range(WARMUP_RUNS):
-            execute_trino_query(sql)
+            execute_trino_query(conn, sql)
 
         # 2. Measured reps
         reps_lat = []
         for _ in range(REPETITIONS):
-            lat = execute_trino_query(sql)
+            lat = execute_trino_query(conn, sql)
             reps_lat.append(lat)
 
         h22_median = float(np.median(reps_lat))
@@ -224,6 +219,7 @@ def main():
     with open(REPORT_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
     logger.info(f"Laporan audit H22 tersimpan: {REPORT_JSON_PATH}")
+    conn.close()
 
 if __name__ == "__main__":
     main()

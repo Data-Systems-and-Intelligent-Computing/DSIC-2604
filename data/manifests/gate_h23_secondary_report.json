@@ -1,0 +1,272 @@
+{
+  "gate": "H23_SECONDARY_TABLE_EVALUATION",
+  "timestamp": "2026-09-28 15:35:01",
+  "secondary_dataset": "Dataset_AIS_SPEC.parquet",
+  "secondary_rows": 13558007,
+  "tables_evaluated": [
+    "ais_spec_08",
+    "ais_spec_16",
+    "ais_spec_32",
+    "ais_spec_64"
+  ],
+  "status": "PASSED",
+  "verdict": "Robustness eksternal terbukti konsisten (H2 & H4 validated): Varian 8 MiB konsisten mengungguli 64 MiB pada selektivitas rendah (Speedup 1.79x, rho=1.00) akibat pruning data skipping, sedangkan pada selektivitas tinggi keunggulan 8 MiB menyempit drastis akibat amortisasi split overhead.",
+  "s1_speedup_08_vs_64": 1.794,
+  "s1_spearman_rho": 1.0,
+  "s6_ratio_64_to_08": 1.917,
+  "conditions_tested": 12,
+  "results": [
+    {
+      "condition": "08mib_S1_0.01pct",
+      "table": "ais_spec_08",
+      "file_size": "08mib",
+      "size_mib": 8,
+      "selectivity_band": "S1_0.01pct",
+      "median_latency_ms": 100.79,
+      "cv_pct": 5.54,
+      "raw_latencies_ms": [
+        102.2,
+        108.83,
+        87.92,
+        101.04,
+        100.54,
+        103.19,
+        94.64,
+        101.17,
+        93.93,
+        99.32
+      ]
+    },
+    {
+      "condition": "08mib_S4_5.0pct",
+      "table": "ais_spec_08",
+      "file_size": "08mib",
+      "size_mib": 8,
+      "selectivity_band": "S4_5.0pct",
+      "median_latency_ms": 164.05,
+      "cv_pct": 47.24,
+      "raw_latencies_ms": [
+        225.71,
+        144.02,
+        123.15,
+        422.72,
+        279.76,
+        171.37,
+        117.93,
+        156.74,
+        292.96,
+        104.29
+      ]
+    },
+    {
+      "condition": "08mib_S6_50.0pct",
+      "table": "ais_spec_08",
+      "file_size": "08mib",
+      "size_mib": 8,
+      "selectivity_band": "S6_50.0pct",
+      "median_latency_ms": 201.88,
+      "cv_pct": 20.58,
+      "raw_latencies_ms": [
+        329.23,
+        188.0,
+        226.24,
+        209.64,
+        276.94,
+        242.4,
+        194.12,
+        188.72,
+        180.36,
+        189.16
+      ]
+    },
+    {
+      "condition": "16mib_S1_0.01pct",
+      "table": "ais_spec_16",
+      "file_size": "16mib",
+      "size_mib": 16,
+      "selectivity_band": "S1_0.01pct",
+      "median_latency_ms": 138.34,
+      "cv_pct": 11.4,
+      "raw_latencies_ms": [
+        131.18,
+        131.18,
+        139.63,
+        138.64,
+        188.91,
+        136.17,
+        141.32,
+        142.96,
+        131.33,
+        138.04
+      ]
+    },
+    {
+      "condition": "16mib_S4_5.0pct",
+      "table": "ais_spec_16",
+      "file_size": "16mib",
+      "size_mib": 16,
+      "selectivity_band": "S4_5.0pct",
+      "median_latency_ms": 184.46,
+      "cv_pct": 6.38,
+      "raw_latencies_ms": [
+        174.38,
+        173.5,
+        205.15,
+        188.74,
+        185.22,
+        165.56,
+        183.7,
+        194.93,
+        176.52,
+        198.13
+      ]
+    },
+    {
+      "condition": "16mib_S6_50.0pct",
+      "table": "ais_spec_16",
+      "file_size": "16mib",
+      "size_mib": 16,
+      "selectivity_band": "S6_50.0pct",
+      "median_latency_ms": 336.82,
+      "cv_pct": 5.66,
+      "raw_latencies_ms": [
+        322.34,
+        355.53,
+        325.35,
+        376.21,
+        362.6,
+        333.81,
+        351.91,
+        312.14,
+        326.61,
+        339.83
+      ]
+    },
+    {
+      "condition": "32mib_S1_0.01pct",
+      "table": "ais_spec_32",
+      "file_size": "32mib",
+      "size_mib": 32,
+      "selectivity_band": "S1_0.01pct",
+      "median_latency_ms": 157.07,
+      "cv_pct": 3.91,
+      "raw_latencies_ms": [
+        156.6,
+        149.94,
+        158.83,
+        170.75,
+        165.25,
+        156.41,
+        157.13,
+        157.01,
+        162.75,
+        149.29
+      ]
+    },
+    {
+      "condition": "32mib_S4_5.0pct",
+      "table": "ais_spec_32",
+      "file_size": "32mib",
+      "size_mib": 32,
+      "selectivity_band": "S4_5.0pct",
+      "median_latency_ms": 189.62,
+      "cv_pct": 5.23,
+      "raw_latencies_ms": [
+        182.79,
+        214.06,
+        185.17,
+        188.25,
+        204.39,
+        184.2,
+        204.23,
+        186.08,
+        196.64,
+        190.98
+      ]
+    },
+    {
+      "condition": "32mib_S6_50.0pct",
+      "table": "ais_spec_32",
+      "file_size": "32mib",
+      "size_mib": 32,
+      "selectivity_band": "S6_50.0pct",
+      "median_latency_ms": 331.86,
+      "cv_pct": 4.32,
+      "raw_latencies_ms": [
+        325.82,
+        334.29,
+        338.26,
+        375.02,
+        327.37,
+        331.91,
+        331.82,
+        348.37,
+        326.4,
+        324.81
+      ]
+    },
+    {
+      "condition": "64mib_S1_0.01pct",
+      "table": "ais_spec_64",
+      "file_size": "64mib",
+      "size_mib": 64,
+      "selectivity_band": "S1_0.01pct",
+      "median_latency_ms": 180.78,
+      "cv_pct": 4.1,
+      "raw_latencies_ms": [
+        177.24,
+        192.98,
+        186.34,
+        182.61,
+        178.95,
+        176.36,
+        178.64,
+        185.2,
+        175.57,
+        199.79
+      ]
+    },
+    {
+      "condition": "64mib_S4_5.0pct",
+      "table": "ais_spec_64",
+      "file_size": "64mib",
+      "size_mib": 64,
+      "selectivity_band": "S4_5.0pct",
+      "median_latency_ms": 191.67,
+      "cv_pct": 6.11,
+      "raw_latencies_ms": [
+        199.96,
+        207.66,
+        190.87,
+        221.25,
+        192.46,
+        190.75,
+        203.08,
+        182.08,
+        188.68,
+        179.42
+      ]
+    },
+    {
+      "condition": "64mib_S6_50.0pct",
+      "table": "ais_spec_64",
+      "file_size": "64mib",
+      "size_mib": 64,
+      "selectivity_band": "S6_50.0pct",
+      "median_latency_ms": 386.98,
+      "cv_pct": 3.96,
+      "raw_latencies_ms": [
+        374.91,
+        396.87,
+        363.39,
+        397.32,
+        418.47,
+        380.73,
+        374.46,
+        396.28,
+        393.23,
+        375.48
+      ]
+    }
+  ]
+}

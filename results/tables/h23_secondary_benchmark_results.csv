@@ -1,0 +1,13 @@
+condition,table,file_size,size_mib,selectivity_band,median_latency_ms,cv_pct
+08mib_S1_0.01pct,ais_spec_08,08mib,8,S1_0.01pct,100.79,5.54
+08mib_S4_5.0pct,ais_spec_08,08mib,8,S4_5.0pct,164.05,47.24
+08mib_S6_50.0pct,ais_spec_08,08mib,8,S6_50.0pct,201.88,20.58
+16mib_S1_0.01pct,ais_spec_16,16mib,16,S1_0.01pct,138.34,11.4
+16mib_S4_5.0pct,ais_spec_16,16mib,16,S4_5.0pct,184.46,6.38
+16mib_S6_50.0pct,ais_spec_16,16mib,16,S6_50.0pct,336.82,5.66
+32mib_S1_0.01pct,ais_spec_32,32mib,32,S1_0.01pct,157.07,3.91
+32mib_S4_5.0pct,ais_spec_32,32mib,32,S4_5.0pct,189.62,5.23
+32mib_S6_50.0pct,ais_spec_32,32mib,32,S6_50.0pct,331.86,4.32
+64mib_S1_0.01pct,ais_spec_64,64mib,64,S1_0.01pct,180.78,4.1
+64mib_S4_5.0pct,ais_spec_64,64mib,64,S4_5.0pct,191.67,6.11
+64mib_S6_50.0pct,ais_spec_64,64mib,64,S6_50.0pct,386.98,3.96

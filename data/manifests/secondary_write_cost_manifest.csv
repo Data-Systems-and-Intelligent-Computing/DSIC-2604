@@ -1,0 +1,5 @@
+variant,target_file_size_mib,layout_build_wall_seconds,write_throughput_mib_s,generated_file_count,table_name,recorded_at
+08mib,8,28.1,7.47,26,ais_spec_08,2026-09-28T08:29:34.328437+00:00
+16mib,16,14.81,14.18,14,ais_spec_16,2026-09-28T08:29:49.318409+00:00
+32mib,32,15.28,13.75,7,ais_spec_32,2026-09-28T08:30:04.789271+00:00
+64mib,64,15.33,13.7,4,ais_spec_64,2026-09-28T08:30:20.251805+00:00

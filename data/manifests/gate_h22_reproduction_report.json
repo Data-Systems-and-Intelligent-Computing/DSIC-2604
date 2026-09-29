@@ -1,9 +1,9 @@
 {
   "gate": "H22_CLEAN_REPRODUCTION",
-  "timestamp": "2026-09-27 13:27:46",
-  "status": "FAILED",
-  "mean_relative_deviation_pct": 34.23,
-  "max_relative_deviation_pct": 60.65,
+  "timestamp": "2026-09-28 09:16:52",
+  "status": "PASSED",
+  "mean_relative_deviation_pct": 2.31,
+  "max_relative_deviation_pct": 5.06,
   "tolerance_threshold_pct": 15.0,
   "representative_conditions_tested": 12,
   "results": [
@@ -14,15 +14,20 @@
       "selectivity_band": "S1_0.01pct",
       "selectivity_id": "0.0001",
       "v1_median_ms": 102.01180000149179,
-      "h22_median_ms": 149.71,
+      "h22_median_ms": 101.34,
       "h22_raw_latencies_ms": [
-        131.0,
-        143.97,
-        182.44,
-        149.71,
-        175.01
+        108.91,
+        101.09,
+        101.59,
+        105.13,
+        112.43,
+        97.46,
+        91.68,
+        92.33,
+        94.32,
+        102.33
       ],
-      "relative_deviation_pct": 46.76
+      "relative_deviation_pct": 0.66
     },
     {
       "condition": "08mib_S4_5.0pct",
@@ -31,15 +36,20 @@
       "selectivity_band": "S4_5.0pct",
       "selectivity_id": "0.05",
       "v1_median_ms": 153.16590000293218,
-      "h22_median_ms": 203.47,
+      "h22_median_ms": 155.62,
       "h22_raw_latencies_ms": [
-        217.72,
-        190.99,
-        186.51,
-        218.33,
-        203.47
+        164.81,
+        224.44,
+        154.21,
+        147.59,
+        168.05,
+        165.29,
+        156.25,
+        154.99,
+        149.9,
+        148.07
       ],
-      "relative_deviation_pct": 32.84
+      "relative_deviation_pct": 1.6
     },
     {
       "condition": "08mib_S6_50.0pct",
@@ -48,15 +58,20 @@
       "selectivity_band": "S6_50.0pct",
       "selectivity_id": "0.50",
       "v1_median_ms": 273.144399994635,
-      "h22_median_ms": 438.81,
+      "h22_median_ms": 285.8,
       "h22_raw_latencies_ms": [
-        521.4,
-        438.81,
-        301.97,
-        491.81,
-        340.24
+        290.65,
+        294.79,
+        306.14,
+        317.26,
+        275.18,
+        299.24,
+        280.96,
+        268.75,
+        265.93,
+        271.36
       ],
-      "relative_deviation_pct": 60.65
+      "relative_deviation_pct": 4.63
     },
     {
       "condition": "16mib_S1_0.01pct",
@@ -65,15 +80,20 @@
       "selectivity_band": "S1_0.01pct",
       "selectivity_id": "0.0001",
       "v1_median_ms": 129.92629999644123,
-      "h22_median_ms": 184.87,
+      "h22_median_ms": 133.18,
       "h22_raw_latencies_ms": [
-        171.44,
-        184.87,
-        184.51,
-        188.8,
-        185.95
+        126.31,
+        127.96,
+        133.03,
+        139.18,
+        131.12,
+        133.33,
+        149.44,
+        133.92,
+        128.38,
+        136.63
       ],
-      "relative_deviation_pct": 42.29
+      "relative_deviation_pct": 2.5
     },
     {
       "condition": "16mib_S4_5.0pct",
@@ -82,15 +102,20 @@
       "selectivity_band": "S4_5.0pct",
       "selectivity_id": "0.05",
       "v1_median_ms": 193.40304998331703,
-      "h22_median_ms": 249.77,
+      "h22_median_ms": 188.71,
       "h22_raw_latencies_ms": [
-        255.45,
-        249.77,
-        244.79,
-        239.93,
-        257.3
+        184.95,
+        208.39,
+        203.59,
+        177.83,
+        190.8,
+        186.62,
+        182.44,
+        192.16,
+        183.73,
+        195.77
       ],
-      "relative_deviation_pct": 29.15
+      "relative_deviation_pct": 2.42
     },
     {
       "condition": "16mib_S6_50.0pct",
@@ -99,15 +124,20 @@
       "selectivity_band": "S6_50.0pct",
       "selectivity_id": "0.50",
       "v1_median_ms": 417.38769999938086,
-      "h22_median_ms": 589.56,
+      "h22_median_ms": 417.74,
       "h22_raw_latencies_ms": [
-        636.56,
-        581.85,
-        591.05,
-        589.56,
-        470.67
+        412.01,
+        390.28,
+        415.86,
+        382.54,
+        454.59,
+        431.46,
+        413.9,
+        434.8,
+        439.74,
+        419.62
       ],
-      "relative_deviation_pct": 41.25
+      "relative_deviation_pct": 0.09
     },
     {
       "condition": "32mib_S1_0.01pct",
@@ -116,15 +146,20 @@
       "selectivity_band": "S1_0.01pct",
       "selectivity_id": "0.0001",
       "v1_median_ms": 145.0180500105489,
-      "h22_median_ms": 188.7,
+      "h22_median_ms": 137.68,
       "h22_raw_latencies_ms": [
-        188.7,
-        175.0,
-        215.8,
-        180.74,
-        225.8
+        138.96,
+        149.84,
+        152.21,
+        130.79,
+        136.4,
+        141.15,
+        147.41,
+        132.78,
+        135.5,
+        135.2
       ],
-      "relative_deviation_pct": 30.12
+      "relative_deviation_pct": 5.06
     },
     {
       "condition": "32mib_S4_5.0pct",
@@ -133,15 +168,20 @@
       "selectivity_band": "S4_5.0pct",
       "selectivity_id": "0.05",
       "v1_median_ms": 215.56924999458715,
-      "h22_median_ms": 269.27,
+      "h22_median_ms": 212.49,
       "h22_raw_latencies_ms": [
-        269.27,
-        247.67,
-        269.1,
-        288.18,
-        286.1
+        232.82,
+        199.49,
+        219.85,
+        214.55,
+        218.9,
+        205.12,
+        210.42,
+        197.22,
+        218.95,
+        205.84
       ],
-      "relative_deviation_pct": 24.91
+      "relative_deviation_pct": 1.43
     },
     {
       "condition": "32mib_S6_50.0pct",
@@ -150,15 +190,20 @@
       "selectivity_band": "S6_50.0pct",
       "selectivity_id": "0.50",
       "v1_median_ms": 444.7824499948183,
-      "h22_median_ms": 519.49,
+      "h22_median_ms": 431.98,
       "h22_raw_latencies_ms": [
-        633.54,
-        525.68,
-        519.49,
-        484.0,
-        506.3
+        439.75,
+        432.98,
+        430.37,
+        433.45,
+        416.47,
+        428.39,
+        431.25,
+        432.72,
+        491.23,
+        423.34
       ],
-      "relative_deviation_pct": 16.8
+      "relative_deviation_pct": 2.88
     },
     {
       "condition": "64mib_S1_0.01pct",
@@ -167,15 +212,20 @@
       "selectivity_band": "S1_0.01pct",
       "selectivity_id": "0.0001",
       "v1_median_ms": 162.13620000053197,
-      "h22_median_ms": 218.73,
+      "h22_median_ms": 159.83,
       "h22_raw_latencies_ms": [
-        184.97,
-        236.67,
-        193.73,
-        218.73,
-        239.21
+        151.58,
+        169.34,
+        161.01,
+        167.63,
+        161.6,
+        148.87,
+        158.65,
+        150.56,
+        168.49,
+        150.43
       ],
-      "relative_deviation_pct": 34.9
+      "relative_deviation_pct": 1.42
     },
     {
       "condition": "64mib_S4_5.0pct",
@@ -184,15 +234,20 @@
       "selectivity_band": "S4_5.0pct",
       "selectivity_id": "0.05",
       "v1_median_ms": 229.3686499906471,
-      "h22_median_ms": 290.68,
+      "h22_median_ms": 221.92,
       "h22_raw_latencies_ms": [
-        295.65,
-        267.69,
-        250.4,
-        290.68,
-        300.37
+        216.97,
+        226.7,
+        228.61,
+        225.38,
+        238.74,
+        211.34,
+        223.68,
+        220.16,
+        205.2,
+        214.25
       ],
-      "relative_deviation_pct": 26.73
+      "relative_deviation_pct": 3.25
     },
     {
       "condition": "64mib_S6_50.0pct",
@@ -201,15 +256,20 @@
       "selectivity_band": "S6_50.0pct",
       "selectivity_id": "0.50",
       "v1_median_ms": 427.90660000173375,
-      "h22_median_ms": 531.99,
+      "h22_median_ms": 435.64,
       "h22_raw_latencies_ms": [
-        510.95,
-        461.8,
-        581.38,
-        531.99,
-        636.17
+        402.71,
+        413.69,
+        424.42,
+        414.01,
+        547.7,
+        462.92,
+        488.45,
+        438.98,
+        450.1,
+        432.3
       ],
-      "relative_deviation_pct": 24.32
+      "relative_deviation_pct": 1.81
     }
   ]
 }

@@ -14,10 +14,10 @@
 ---
 
 ## 📌 Status Terkini Proyek
-- **Status Sinkronisasi Repo:** Menuntaskan H22 Clean-Slate Reproduction & Catatan Literatur Lengkap.
+- **Status Sinkronisasi Repo:** H22 Reproduction, H23 Secondary Table, & H24 Mixed Workload (Figure 15) Tuntas 100%.
 - **Fase Aktif:** **Minggu 4 (H22–H28 — Reproduksi, Ekstensi, Manuskrip)**.
-- **Hari Kerja Terakhir:** **H22 Selesai (Clean-Slate Reproduction terverifikasi, ranking deterministik terbukti)**.
-- **Hari Kerja Selanjutnya:** **Minggu 4 Lanjutan (Integrasi 33 Literatur Supervisor, Penyusunan Bab 3 & Bab 4 Skripsi)**.
+- **Hari Kerja Terakhir:** **H24 Selesai (Eksperimen E6 / Figure 15 terbit, Gate H24 LULUS)**.
+- **Hari Kerja Selanjutnya:** **H25 (Final Literature Verification) & H26–H28 (Penyusunan Bab 3 & Bab 4 Skripsi)**.
 
 ---
 
@@ -32,7 +32,7 @@ Saat Anda kembali membuka sesi ini nanti, langkah yang perlu Anda lakukan:
    .venv\Scripts\python.exe scripts/restore_catalog.py
    ```
 3. **Mulai Sesi:**
-   Cukup katakan: *"Ayo kita lanjut Minggu 4"* atau *"Ayo kita mulai tulis BAB 3/4"*. Asisten akan langsung memandu Anda menyusun naskah skripsi berdasarkan data empiris dan 33 literatur supervisor.
+   Cukup katakan: *"Ayo kita lanjut BAB 3/4"*. Asisten akan langsung memandu Anda menyusun naskah skripsi berdasarkan data empiris dan 33 literatur supervisor.
 
 ---
 
@@ -42,8 +42,8 @@ Saat Anda kembali membuka sesi ini nanti, langkah yang perlu Anda lakukan:
 |---|---|---|---|---|
 | **Minggu 1 (H1–H7)** | Freeze, Data, Infrastruktur, Layout, Pilot | E0, E1, E2 | G1–G9 | ✅ Selesai (H1–H7 ✅) |
 | **Minggu 2 (H8–H14)** | Main Factorial Benchmark | E3 | Kelengkapan run & telemetry | ✅ Selesai (H8–H14 ✅) |
-| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | 🔄 Berjalan (H15 ✅, H16 ✅, H17 ✅) |
-| **Minggu 4 (H22–H28)** | Reproduksi, Ekstensi, Manuskrip | E5, E6 | Quality gate skripsi/artikel | ⚪ Belum Dimulai |
+| **Minggu 3 (H15–H21)** | Analisis, Mekanisme, Robustness | E4, E5 | Results v1 freeze | ✅ Selesai (H15–H21 ✅) |
+| **Minggu 4 (H22–H28)** | Reproduksi, Ekstensi, Manuskrip | E5, E6 | Quality gate skripsi/artikel | 🔄 Berjalan (H22 ✅, H23 ✅, H24 ✅) |
 
 ---
 
