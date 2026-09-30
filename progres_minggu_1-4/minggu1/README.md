@@ -17,19 +17,14 @@ protokol dibekukan.
 ### Ringkasan
 
 
+---
 
-| Minggu | Fokus | Eksperimen | Gate |
-
-|---|---|---|---|
-
-| 1 (H1–H7) | Freeze, data, infrastruktur, layout, pilot | E0, E1, E2 | G1–G9 |
-
-| 2 (H8–H14) | Main factorial benchmark | E3 | kelengkapan run & telemetry |
-
-| 3 (H15–H21) | Analisis, mekanisme, robustness | E4, E5 | results v1 freeze |
-
-| 4 (H22–H28) | Reproduksi, ekstensi, manuskrip | E5, E6 | quality gate skripsi/artikel |
-
+| Minggu       | Fokus                                   | Eksperimen   | Gate                          |
+|--------------|-----------------------------------------|--------------|-------------------------------|
+| 1 (H1–H7)    | Freeze, data, infrastruktur, layout, pilot | E0, E1, E2   | G1–G9                         |
+| 2 (H8–H14)   | Main factorial benchmark                | E3           | Kelengkapan run & telemetry   |
+| 3 (H15–H21)  | Analisis, mekanisme, robustness         | E4, E5       | Results v1 freeze             |
+| 4 (H22–H28)  | Reproduksi, ekstensi, manuskrip         | E5, E6       | Quality gate skripsi/artikel  |
 
 
 ---
