@@ -374,7 +374,7 @@ Di Hari 4 (H4), kita **mengunci batas CPU/RAM Trino** dan mengukur **Noise Floor
 
 | Istilah Teknis | Penjelasan Sederhana | Analogi Dunia Nyata |
 |---|---|---|
-| **Resource Constraints** | Pembatasan ketat alokasi memori RAM dan inti CPU yang boleh digunakan oleh Trino worker. Diatur: 2 Core CPU dan 4 GB RAM. | Mengatur batas kecepatan mobil maksimal 60 km/jam agar pengujian hemat bahan bakar berlangsung adil. |
+| **Resource Constraints** | Pembatasan ketat alokasi memori RAM dan inti CPU yang boleh digunakan oleh Trino worker. Diatur: 8 vCPU dan 16 GB RAM. | Mengatur batas kecepatan mobil maksimal 60 km/jam agar pengujian hemat bahan bakar berlangsung adil. |
 | **Noise Floor** | Variasi waktu alami pada komputer yang disebabkan oleh proses latar belakang sistem operasi (misal Windows update, antivirus). | Desah desis suara angin di latar rekaman audio mikrofon saat ruangan hening. |
 | **CV (Coefficient of Variation)** | Nilai persentase kestabilan ($CV = \frac{\text{Standar Deviasi}}{\text{Rata-rata}} \times 100\%$). Semakin kecil nilai CV (di bawah 10%), artinya komputer pengujian semakin konsisten dan stabil. | Variasi ketukan jarum detik jam: jika jam berdetik dengan irama teratur, variasinya sangat kecil (stabil). |
 
@@ -1544,7 +1544,7 @@ DSIC-2604/
 
 ## 4. Bedah Parameter & Dua Gaya Tarik-Menarik Fisik di Lakehouse
 
-Di dalam Lakehouse node tunggal bersumber daya terbatas (4 vCPU / 16 GB RAM), terjadi pertarungan antara **dua kekuatan fisik yang berlawanan**:
+Di dalam Lakehouse node tunggal bersumber daya terbatas (8 vCPU / 16 GB RAM), terjadi pertarungan antara **dua kekuatan fisik yang berlawanan**:
 
 ```
         KEKUATAN A                                      KEKUATAN B
@@ -2081,23 +2081,23 @@ Berdasarkan data dari `data/manifests/write_cost_manifest.csv` yang dicatat saat
 
 | Varian | Waktu Tulis | Throughput Tulis | Jumlah File | Storage | Speedup Kueri | Write ROI |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **8 MiB**  | 39.95 detik | 11.27 MiB/s | **198 file** | 1,269.90 MiB | **1.498x** | **1.029** |
-| **16 MiB** | 26.37 detik | 17.07 MiB/s | 93 file      | 1,263.35 MiB | 1.175x     | 1.223     |
-| **32 MiB** | 27.44 detik | 16.40 MiB/s | 45 file      | 1,256.43 MiB | 1.000x (baseline) | 1.000 |
-| **64 MiB** | **22.81 detik** | **19.73 MiB/s** | **24 file** | 1,239.99 MiB | 0.892x | 1.073 |
+| **8 MiB**  | 26.90 detik | 16.73 MiB/s | **66 file** | 423.30 MiB | **1.498x** | **1.002** |
+| **16 MiB** | 16.55 detik | 27.19 MiB/s | 31 file      | 421.12 MiB | 1.175x     | 1.278     |
+| **32 MiB** | 18.00 detik | 25.00 MiB/s | 15 file      | 418.81 MiB | 1.000x (baseline) | 1.000 |
+| **64 MiB** | **16.11 detik** | **27.94 MiB/s** | **8 file** | 413.33 MiB | 0.892x | 0.996 |
 
 ### Interpretasi Write ROI Index
 
 **Formula:**
 $$\text{Write ROI} = \frac{\text{Speedup Kueri (vs 32 MiB)}}{\text{Waktu Tulis / Waktu Tulis Baseline (32 MiB)}}$$
 
-- **ROI 8 MiB = 1.029** → Positif! Meskipun butuh 39.95 detik (1.456x lebih lama dari 64 MiB), keuntungan kueri 1.498x membuat investasi tulis tersebut *terbayar lunas*.
-- **ROI 16 MiB = 1.223** → ROI tertinggi! Trade-off terbaik antara biaya tulis dan keuntungan kueri untuk *workload campuran*.
-- **ROI 64 MiB = 1.073** → Positif untuk workload acak/full-scan, tetapi speedup kueri-nya negatif (-12%) pada workload terurut.
+- **ROI 8 MiB = 1.002** → Impas! Meskipun butuh 26.90 detik (1.67x lebih lama dari 64 MiB), keuntungan kueri 1.498x membuat investasi tulis tersebut *terbayar*.
+- **ROI 16 MiB = 1.278** → ROI tertinggi! Trade-off terbaik antara biaya tulis dan keuntungan kueri untuk *workload campuran*.
+- **ROI 64 MiB = 0.996** → Negatif (meskipun sedikit) untuk workload terurut, tetapi biaya tulisnya paling murah (16.11 detik, 8 file).
 
 **Analogi Mudah:**  
 Bayangkan membeli buku teks untuk belajar:
-- **8 MiB** = Membeli buku 198 halaman tipis yang mudah dibaca cepat (kueri cepat), tapi lebih mahal dan butuh rak lebih banyak (biaya tulis & file count tinggi). Untuk pelajar rajin (*workload terurut*), ini investasi terbaik.
+- **8 MiB** = Membeli buku 66 halaman tipis yang mudah dibaca cepat (kueri cepat), tapi lebih mahal dicetak dan butuh rak lebih banyak (biaya tulis & file count tinggi). Untuk pelajar rajin (*workload terurut*), ini investasi terbaik.
 - **64 MiB** = Membeli 1 ensiklopedia tebal murah cepat dicetak (biaya tulis rendah), tapi setiap kali mencari info Anda harus membalik 100 halaman sebelum menemukan yang relevan (*split overhead tinggi pada workload acak*).
 
 ---
@@ -2106,7 +2106,7 @@ Bayangkan membeli buku teks untuk belajar:
 
 ### Figure 11: Write Cost Trade-off
 * **Berkas:** [`results/figures/fig11_write_cost_trade_off.png`](file:///d:/DSIC-2604/results/figures/fig11_write_cost_trade_off.png) (& `.pdf`)
-* **Panel A (Biaya Penulisan Layout):** Diagram batang membandingkan waktu penulisan dan jumlah file tiap varian. Terlihat jelas 8 MiB paling mahal (39.95s, 198 file) vs 64 MiB paling murah (22.81s, 24 file).
+* **Panel A (Biaya Penulisan Layout):** Diagram batang membandingkan waktu penulisan dan jumlah file tiap varian. Terlihat jelas 8 MiB paling mahal (26.90s, 66 file) vs 64 MiB paling murah (16.11s, 8 file).
 * **Panel B (Keuntungan Kecepatan Kueri):** Diagram batang membandingkan speedup kueri vs baseline 32 MiB. 8 MiB unggul 1.498x sedangkan 64 MiB sedikit lebih lambat (0.892x) pada workload terurut.
 * **Panel C (Write ROI Index):** Menggabungkan kedua dimensi menjadi satu indeks tunggal. Nilai > 1.0 = investasi positif.
 

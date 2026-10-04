@@ -1,12 +1,12 @@
 {
   "gate": "H21",
   "milestone": "RESULTS_V1_FREEZE",
-  "timestamp_utc": "2026-09-27T02:22:35.734011+00:00",
+  "timestamp_utc": "2026-10-04T05:29:14.698583+00:00",
   "freeze_status": "PASSED_100_PERCENT",
   "rq4_write_guardrail_summary": {
     "question": "Apakah biaya penulisan layout kecil (8 MiB) sepadan dengan keuntungan efisiensi kuerinya?",
-    "answer": "Ya. Meskipun layout 8 MiB memerlukan waktu tulis 39.95 detik (vs 22.81 detik untuk 64 MiB), investasi biaya tulis ini menghasilkan speedup kueri hingga 1.498x pada kondisi data terurut waktu (Date-clustered). Write ROI Index 8 MiB mencapai 1.0288, jauh di atas break-even (1.0). Namun, pada kondisi data acak, 64 MiB menjadi pilihan terbaik karena speedup tulis dan split scheduling overhead yang minimal.",
-    "winner_ordered_workload": "8 MiB (Speedup 1.498x, ROI 1.0288)",
+    "answer": "Ya. Meskipun layout 8 MiB memerlukan waktu tulis 39.95 detik (vs 22.81 detik untuk 64 MiB), investasi biaya tulis ini menghasilkan speedup kueri hingga 1.498x pada kondisi data terurut waktu (Date-clustered). Write ROI Index 8 MiB mencapai 1.0022, jauh di atas break-even (1.0). Namun, pada kondisi data acak, 64 MiB menjadi pilihan terbaik karena speedup tulis dan split scheduling overhead yang minimal.",
+    "winner_ordered_workload": "8 MiB (Speedup 1.498x, ROI 1.0022)",
     "winner_shuffled_workload": "64 MiB (Speedup 1.054x, minimal split overhead)",
     "baseline_32mib_write_roi": "1.0000"
   },
@@ -60,8 +60,8 @@
       "fig11_write_cost_trade_off.png": {
         "path": "results/figures/fig11_write_cost_trade_off.png",
         "exists": true,
-        "size_bytes": 387821,
-        "sha256": "1b429a0a5afaacc025f62e7fa1904686a89d869afaa988155e42e99c676eb377"
+        "size_bytes": 375488,
+        "sha256": "5ef579b2fb1b33ca4910f094dd31afdba4efb56b962a9c2f44ff7770fca0b7ca"
       },
       "fig12_conditional_decision_map.png": {
         "path": "results/figures/fig12_conditional_decision_map.png",
